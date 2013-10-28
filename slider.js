@@ -15,7 +15,7 @@
 
 		var namespace = slider.vars.namespace,
 			msGesture = window.navigator && window.navigator.msPointerEnabled && window.MSGesture,
-			touch = ( ( 'ontouchstart' in window ) || msGesture || window.DocumentTouch && document instanceof DocumentTouch ) && slider.vars.touch,
+			touch = ( ( 'ontouchstart' in window ) || msGesture || window.DocumentTouch && document instanceof DocumentTouch ),
 			eventType = 'click touchend MSPointerUp',
 			watchedEvent = '',
 			watchedEventClearTimer,
@@ -54,7 +54,7 @@
 				slider.started = false;
 				slider.startTimeout = null;
 				// TOUCH
-				slider.transitions = ! slider.vars.video && ! fade && ( function() {
+				slider.transitions = ! fade && ( function() {
 					var obj = document.createElement( 'div' ),
 						props = ['perspectiveProperty', 'WebkitPerspective', 'MozPerspective', 'OPerspective', 'msPerspective'];
 					for ( var i in props ) {
@@ -105,8 +105,7 @@
 					methods.asNav.setup();
 
 				// TOUCH
-				if ( touch && slider.vars.touch )
-					methods.touch();
+				methods.touch();
 
 				// FADE && SMOOTHHEIGHT || SLIDE
 				if ( ! fade || ( fade && slider.vars.smoothHeight ) )
@@ -808,10 +807,6 @@
 		initDelay: 0,                   // {NEW} Integer: Set an initialization delay, in milliseconds
 		randomize: false,               // Boolean: Randomize slide order
 		thumbCaptions: false,           // Boolean: Whether or not to put captions on thumbnails when using the 'thumbnails' controlNav.
-
-		// Usability features
-		touch: true,                    // {NEW} Boolean: Allow touch swipe navigation of the slider on touch-enabled devices
-		video: false,                   // {NEW} Boolean: If using video in the slider, will prevent CSS3 3D Transforms to avoid graphical glitches
 
 		// Text labels: @todo allow translation
 		prevText: 'Previous',     // String: Set the text for the "previous" directionNav item.
