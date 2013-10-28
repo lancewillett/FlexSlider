@@ -108,7 +108,7 @@
 						}
 					}
 
-					// CONTROLSCONTAINER:
+					// CONTROLSCONTAINER
 					( slider.controlsContainer ) ? $( slider.controlsContainer ).append( slider.controlNavScaffold ) : slider.append( slider.controlNavScaffold );
 					methods.controlNav.set();
 
@@ -127,7 +127,7 @@
 							}
 						}
 
-						// Set up flags to prevent event duplication
+						// Set up flags to prevent event duplication.
 						if ( watchedEvent === '' )
 							watchedEvent = event.type;
 
@@ -157,7 +157,7 @@
 				setup: function() {
 					var directionNavScaffold = $( '<ul class="' + namespace + 'direction-nav"><li><a class="' + namespace + 'prev" href="#">' + slider.vars.prevText + '</a></li><li><a class="' + namespace + 'next" href="#">' + slider.vars.nextText + '</a></li></ul>' );
 
-					// CONTROLSCONTAINER:
+					// CONTROLSCONTAINER
 					if ( slider.controlsContainer ) {
 						$( slider.controlsContainer ).append( directionNavScaffold );
 						slider.directionNav = $( '.' + namespace + 'direction-nav li a', slider.controlsContainer );
@@ -177,7 +177,7 @@
 							slider.featureAnimate( target );
 						}
 
-						// Set up flags to prevent event duplication
+						// Set up flags to prevent event duplication.
 						if ( watchedEvent === '' )
 							watchedEvent = event.type;
 
@@ -212,7 +212,6 @@
 						if ( slider.animating ) {
 							e.preventDefault();
 						} else if ( ( window.navigator.msPointerEnabled ) || e.touches.length === 1 ) {
-							slider.pause();
 							cwidth = slider.w;
 							startT = Number( new Date() );
 
@@ -250,7 +249,7 @@
 					}
 
 					function onTouchEnd( e ) {
-						// Finish the touch by undoing the touch session
+						// Finish the touch by undoing the touch session.
 						el.removeEventListener( 'touchmove', onTouchMove, false );
 
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
@@ -282,13 +281,11 @@
 						if ( slider.animating ) {
 							e.preventDefault();
 						} else {
-							slider.pause();
 							el._gesture.addPointer( e.pointerId );
 							accDx = 0;
 							cwidth = slider.w;
 							startT = Number( new Date() );
-							offset = ( slider.animatingTo === slider.last ) ? 0 :
-									( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
+							offset = ( slider.animatingTo === slider.last ) ? 0 : ( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
 						}
 					}
 
@@ -367,7 +364,7 @@
 			}
 		};
 
-		// Public methods
+		// Public methods.
 		slider.featureAnimate = function( target, override ) {
 			if ( target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
@@ -375,7 +372,7 @@
 			if ( slider.pagingCount === 1 )
 				slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 
-			if ( ! slider.animating && ( slider.canAdvance( target, fromNav ) || override ) && slider.is( ':visible' ) ) {
+			if ( ! slider.animating && ( slider.canAdvance( target ) || override ) && slider.is( ':visible' ) ) {
 				slider.animating = true;
 				slider.animatingTo = target;
 
@@ -431,10 +428,9 @@
 			slider.currentSlide = slider.animatingTo;
 		};
 
-		slider.canAdvance = function( target, fromNav ) {
+		slider.canAdvance = function( target ) {
 			var last = slider.last;
-			return ( fromNav ) ? true :
-				( slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
+			return ( slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
 				( slider.currentItem === 0 && target === slider.pagingCount - 1 && slider.direction !== 'next' ) ? false :
 				( slider.atEnd && slider.currentSlide === 0 && target === last && slider.direction !== 'next' ) ? false :
 				( slider.atEnd && slider.currentSlide === last && target === 0 && slider.direction === 'next' ) ? false :
@@ -487,8 +483,8 @@
 			}
 			slider.cloneCount = 2;
 			slider.cloneOffset = 1;
-			// Clear out old clones
-			if ( type !== 'init' )	
+			// Clear out old clones.
+			if ( type !== 'init' )
 				slider.container.find( '.clone' ).remove();
 
 			slider.container.append( slider.slides.first().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) ).prepend( slider.slides.last().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) );
@@ -524,7 +520,7 @@
 		slider.update = function( pos, action ) {
 			slider.doMath();
 
-			// Update currentSlide and slider.animatingTo if necessary
+			// Update currentSlide and slider.animatingTo if necessary.
 			if ( pos < slider.currentSlide ) {
 				slider.currentSlide += 1;
 			} else if ( pos <= slider.currentSlide && pos !== 0 ) {
@@ -532,8 +528,8 @@
 			}
 			slider.animatingTo = slider.currentSlide;
 
-			// Update controlNav
-			if ( ( action === 'add' ) || slider.pagingCount > slider.controlNav.length ) {
+			// Update controlNav.
+			if ( action === 'add' || slider.pagingCount > slider.controlNav.length ) {
 				methods.controlNav.update( 'add' );
 			} else if ( action === 'remove' || slider.pagingCount < slider.controlNav.length ) {
 				if ( slider.currentSlide > slider.last ) {
@@ -542,78 +538,34 @@
 				}
 				methods.controlNav.update( 'remove', slider.last );
 			}
-			// Update directionNav
+			// Update directionNav.
 			methods.directionNav.update();
 		};
 
-		slider.addSlide = function( obj, pos ) {
-			var $obj = $( obj );
-
-			slider.count += 1;
-			slider.last = slider.count - 1;
-
-			// Append new slide.
-			if ( pos !== undefined )
-				slider.slides.eq( pos ).before( $obj );
-			else
-				slider.container.append( $obj );
-
-			// Update currentSlide, animatingTo, controlNav, and directionNav.
-			slider.update( pos, 'add' );
-
-			// Update slider.slides.
-			slider.slides = $( slider.vars.selector + ':not(.clone )', slider );
-			// Le-setup the slider to accomdate new slide
-			slider.setup();
-		};
-		slider.removeSlide = function( obj ) {
-			var pos = ( isNaN( obj ) ) ? slider.slides.index( $( obj ) ) : obj;
-
-			// Update count.
-			slider.count -= 1;
-			slider.last = slider.count - 1;
-
-			// Remove slide.
-			if ( isNaN( obj ) ) {
-				$( obj, slider.slides ).remove();
-			} else {
-				slider.slides.eq( obj ).remove();
-			}
-
-			// Update currentSlide, animatingTo, controlNav, and directionNav.
-			slider.doMath();
-			slider.update( pos, 'remove' );
-
-			// Update slider.slides.
-			slider.slides = $( slider.vars.selector + ':not(.clone )', slider );
-			// Re-setup the slider to accomdate new slide.
-			slider.setup();
-		};
-
-		// FeaturedSlider: Initialize
+		// FeaturedSlider: initialize.
 		methods.init();
 	};
 
-	// Ensure the slider isn't focussed if the window loses focus.
+	// Ensure the slider isn't focused if the window loses focus.
 	$( window ).blur( function ( e ) {
 		focused = false;
 	} ).focus( function ( e ) {
 		focused = true;
 	} );
 
-	// FeaturedSlider: Default Settings
+	// Default settings.
 	$.featuredslider.defaults = {
-		namespace: 'slider',             // {NEW} String: Prefix string attached to the class of every element generated by the plugin
-		selector: '.slides > li',       // {NEW} Selector: Must match a simple pattern. '{container} > {slide}' -- Ignore pattern at your own peril
-		controlsContainer: '',          // {UPDATED} jQuery Object/Selector: Declare which container the navigation elements should be appended too. Default container is the FeaturedSlider element. Example use would be $( '.featuredslider-container' ). Property is ignored if given element is not found.
-		animationSpeed: 600,            // Integer: Set the speed of animations, in milliseconds
+		namespace: 'slider-',     // String: prefix string attached to the class of every element generated by the plugin.
+		selector: '.slides > li', // String: selector, must match a simple pattern.
+		animationSpeed: 600,      // Integer: Set the speed of animations, in milliseconds.
+		controlsContainer: '',    // jQuery Object/Selector: container navigation to append elements.
 
 		// Text labels: @todo allow translation
 		prevText: 'Previous',     // String: Set the text for the "previous" directionNav item.
 		nextText: 'Next'          // String: Set the text for the "next" directionNav item.
 	};
 
-	// FeaturedSlider: Plugin Function
+	// FeaturedSlider: plugin function.
 	$.fn.featuredslider = function( options ) {
 		if ( options === undefined )
 			options = {};
@@ -626,8 +578,6 @@
 
 			if ( $slides.length === 1 || $slides.length === 0 ) {
 					$slides.fadeIn( 400 );
-					if ( options.start )
-						options.start( $this );
 				} else if ( $this.data( 'featuredslider' ) === undefined ) {
 					new $.featuredslider( this, options );
 				}
