@@ -5,7 +5,6 @@
  */
 ;
 ( function ( $ ) {
-
 	// FlexSlider: object instance.
 	$.flexslider = function( el, options ) {
 		var slider = $( el );
@@ -36,7 +35,8 @@
 				slider.animating = false;
 				// Get current slide and make sure it is a number.
 				slider.currentSlide = parseInt( ( slider.vars.startAt ? slider.vars.startAt : 0 ), 10 );
-				if ( isNaN( slider.currentSlide ) ) slider.currentSlide = 0;
+				if ( isNaN( slider.currentSlide ) )
+					slider.currentSlide = 0;
 				slider.animatingTo = slider.currentSlide;
 				slider.atEnd = ( slider.currentSlide === 0 || slider.currentSlide === slider.last );
 				slider.containerSelector = slider.vars.selector.substr( 0, slider.vars.selector.search( ' ' ) );
@@ -46,7 +46,8 @@
 				// SYNC
 				slider.syncExists = $( slider.vars.sync ).length > 0;
 				// SLIDE
-				if ( slider.vars.animation === 'slide' ) slider.vars.animation = 'swing';
+				if ( slider.vars.animation === 'slide' )
+					slider.vars.animation = 'swing';
 				slider.prop = ( vertical ) ? 'top' : 'marginLeft';
 				slider.args = {};
 				// SLIDESHOW
@@ -69,9 +70,11 @@
 					return false;
 				}() );
 				// CONTROLSCONTAINER
-				if ( slider.vars.controlsContainer !== '' ) slider.controlsContainer = $( slider.vars.controlsContainer ).length > 0 && $( slider.vars.controlsContainer );
+				if ( slider.vars.controlsContainer !== '' )
+					slider.controlsContainer = $( slider.vars.controlsContainer ).length > 0 && $( slider.vars.controlsContainer );
 				// MANUAL
-				if ( slider.vars.manualControls !== '' ) slider.manualControls = $( slider.vars.manualControls ).length > 0 && $( slider.vars.manualControls );
+				if ( slider.vars.manualControls !== '' )
+					slider.manualControls = $( slider.vars.manualControls ).length > 0 && $( slider.vars.manualControls );
 
 				// RANDOMIZE
 				if ( slider.vars.randomize ) {
@@ -85,10 +88,12 @@
 				slider.setup( 'init' );
 
 				// CONTROLNAV
-				if ( slider.vars.controlNav ) methods.controlNav.setup();
+				if ( slider.vars.controlNav )
+					methods.controlNav.setup();
 
 				// DIRECTIONNAV
-				if ( slider.vars.directionNav ) methods.directionNav.setup();
+				if ( slider.vars.directionNav )
+					methods.directionNav.setup();
 
 				// KEYBOARD
 				if ( slider.vars.keyboard && ( $( slider.containerSelector ).length === 1 || slider.vars.multipleKeyboard ) ) {
@@ -111,18 +116,22 @@
 				}
 
 				// PAUSEPLAY
-				if ( slider.vars.pausePlay ) methods.pausePlay.setup();
+				if ( slider.vars.pausePlay )
+					methods.pausePlay.setup();
 
 				// PAUSE WHEN INVISIBLE
-				if ( slider.vars.slideshow && slider.vars.pauseInvisible ) methods.pauseInvisible.init();
+				if ( slider.vars.slideshow && slider.vars.pauseInvisible )
+					methods.pauseInvisible.init();
 
 				// SLIDSESHOW
 				if ( slider.vars.slideshow ) {
 					if ( slider.vars.pauseOnHover ) {
 						slider.hover( function() {
-							if ( ! slider.manualPlay && ! slider.manualPause ) slider.pause();
+							if ( ! slider.manualPlay && ! slider.manualPause )	
+								slider.pause();
 						}, function() {
-							if ( ! slider.manualPause && ! slider.manualPlay && ! slider.stopped ) slider.play();
+							if ( ! slider.manualPause && ! slider.manualPlay && ! slider.stopped )
+								slider.play();
 						} );
 					}
 					// Initialize animation
@@ -133,13 +142,16 @@
 				}
 
 				// ASNAV
-				if ( asNav ) methods.asNav.setup();
+				if ( asNav )
+					methods.asNav.setup();
 
 				// TOUCH
-				if ( touch && slider.vars.touch ) methods.touch();
+				if ( touch && slider.vars.touch )
+					methods.touch();
 
 				// FADE && SMOOTHHEIGHT || SLIDE
-				if ( ! fade || ( fade && slider.vars.smoothHeight ) ) $( window ).bind( 'resize orientationchange focus', methods.resize );
+				if ( ! fade || ( fade && slider.vars.smoothHeight ) )
+					$( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
 
@@ -240,11 +252,10 @@
 						}
 
 						// Set up flags to prevent event duplication
-						if ( watchedEvent === '' ) {
+						if ( watchedEvent === '' )
 							watchedEvent = event.type;
-						}
-						methods.setToClearWatchedEvent();
 
+						methods.setToClearWatchedEvent();
 					} );
 				},
 				setupManual: function() {
@@ -265,9 +276,9 @@
 						}
 
 						// Set up flags to prevent event duplication
-						if ( watchedEvent === '' ) {
+						if ( watchedEvent === '' )
 							watchedEvent = event.type;
-						}
+
 						methods.setToClearWatchedEvent();
 					} );
 				},
@@ -315,9 +326,9 @@
 						}
 
 						// Set up flags to prevent event duplication
-						if ( watchedEvent === '' ) {
+						if ( watchedEvent === '' )
 							watchedEvent = event.type;
-						}
+
 						methods.setToClearWatchedEvent();
 					} );
 				},
@@ -369,9 +380,9 @@
 						}
 
 						// Set up flags to prevent event duplication
-						if ( watchedEvent === '' ) {
+						if ( watchedEvent === '' )
 							watchedEvent = event.type;
-						}
+
 						methods.setToClearWatchedEvent();
 					} );
 				},
@@ -496,9 +507,9 @@
 					function onMSGestureChange( e ) {
 						e.stopPropagation();
 						var slider = e.target._slider;
-						if ( ! slider ) {
+						if ( ! slider )
 							return;
-						}
+
 						var transX = -e.translationX,
 							transY = -e.translationY;
 
@@ -529,9 +540,9 @@
 					function onMSGestureEnd( e ) {
 						e.stopPropagation();
 						var slider = e.target._slider;
-						if ( ! slider ) {
+						if ( ! slider )
 							return;
-						}
+
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
 							var updateDx = ( reverse ) ? -dx : dx,
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
@@ -595,7 +606,8 @@
 				init: function() {
 					var prefixes = ['webkit','moz','ms','o'];
 
-					if ( 'hidden' in document ) return 'hidden';
+					if ( 'hidden' in document )
+						return 'hidden';
 					for ( var i = 0; i < prefixes.length; i++ ) {
 						if ( ( prefixes[i] + 'Hidden' ) in document )
 						methods.pauseInvisible.visProp = prefixes[i] + 'Hidden';
@@ -628,11 +640,11 @@
 
 		// Public methods
 		slider.flexAnimate = function( target, pause, override, withSync, fromNav ) {
-			if ( ! slider.vars.animationLoop && target !== slider.currentSlide ) {
+			if ( ! slider.vars.animationLoop && target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
-			}
 
-			if ( asNav && slider.pagingCount === 1 ) slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
+			if ( asNav && slider.pagingCount === 1 )
+				slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 
 			if ( ! slider.animating && ( slider.canAdvance( target, fromNav ) || override ) && slider.is( ':visible' ) ) {
 				if ( asNav && withSync ) {
@@ -657,33 +669,39 @@
 				slider.animatingTo = target;
 
 				// SLIDESHOW
-				if ( pause ) slider.pause();
+				if ( pause )
+					slider.pause();
 
 				// API: before() animation Callback
 				slider.vars.before( slider );
 
 				// SYNC
-				if ( slider.syncExists && ! fromNav ) methods.sync( 'animate' );
+				if ( slider.syncExists && ! fromNav )
+					methods.sync( 'animate' );
 
 				// CONTROLNAV
-				if ( slider.vars.controlNav ) methods.controlNav.active();
+				if ( slider.vars.controlNav )
+					methods.controlNav.active();
 
 				// ! CAROUSEL
 				// CANDIDATE: slide active class ( for add/remove slide )
-				if ( ! carousel ) slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
+				if ( ! carousel )
+					slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
 
 				// INFINITE LOOP:
 				// CANDIDATE: atEnd
 				slider.atEnd = target === 0 || target === slider.last;
 
 				// DIRECTIONNAV
-				if ( slider.vars.directionNav ) methods.directionNav.update();
+				if ( slider.vars.directionNav )
+					methods.directionNav.update();
 
 				if ( target === slider.last ) {
 					// API: end() of cycle Callback
 					slider.vars.end( slider );
 					// SLIDESHOW && ! INFINITE LOOP:
-					if ( ! slider.vars.animationLoop ) slider.pause();
+					if ( ! slider.vars.animationLoop )
+						slider.pause();
 				}
 
 				// SLIDE
@@ -730,7 +748,8 @@
 					}
 				}
 				// SMOOTH HEIGHT
-				if ( slider.vars.smoothHeight ) methods.smoothHeight( slider.vars.animationSpeed );
+				if ( slider.vars.smoothHeight )
+					methods.smoothHeight( slider.vars.animationSpeed );
 			}
 		};
 		slider.wrapup = function( dimension ) {
@@ -750,7 +769,8 @@
 
 		// SLIDESHOW
 		slider.animateSlides = function() {
-			if ( ! slider.animating && focused ) slider.flexAnimate( slider.getTarget( 'next' ) );
+			if ( ! slider.animating && focused )
+				slider.flexAnimate( slider.getTarget( 'next' ) );
 		};
 		// SLIDESHOW
 		slider.pause = function() {
@@ -758,19 +778,24 @@
 			slider.animatedSlides = null;
 			slider.playing = false;
 			// PAUSEPLAY:
-			if ( slider.vars.pausePlay ) methods.pausePlay.update( 'play' );
+			if ( slider.vars.pausePlay )
+				methods.pausePlay.update( 'play' );
 			// SYNC
-			if ( slider.syncExists ) methods.sync( 'pause' );
+			if ( slider.syncExists )
+				methods.sync( 'pause' );
 		};
 		// SLIDESHOW
 		slider.play = function() {
-			if ( slider.playing ) clearInterval( slider.animatedSlides );
+			if ( slider.playing )
+				clearInterval( slider.animatedSlides );
 			slider.animatedSlides = slider.animatedSlides || setInterval( slider.animateSlides, slider.vars.slideshowSpeed );
 			slider.started = slider.playing = true;
 			// PAUSEPLAY:
-			if ( slider.vars.pausePlay ) methods.pausePlay.update( 'pause' );
+			if ( slider.vars.pausePlay )
+				methods.pausePlay.update( 'pause' );
 			// SYNC
-			if ( slider.syncExists ) methods.sync( 'play' );
+			if ( slider.syncExists )
+				methods.sync( 'play' );
 		};
 		// STOP:
 		slider.stop = function () {
@@ -828,7 +853,8 @@
 			}
 
 			slider.args[slider.prop] = target;
-			if ( slider.transitions || dur === undefined ) slider.container.css( slider.args );
+			if ( slider.transitions || dur === undefined )
+				slider.container.css( slider.args );
 		};
 
 		slider.setup = function( type ) {
@@ -853,7 +879,8 @@
 					slider.cloneCount = 2;
 					slider.cloneOffset = 1;
 					// Clear out old clones
-					if ( type !== 'init' ) slider.container.find( '.clone' ).remove();
+					if ( type !== 'init' )	
+						slider.container.find( '.clone' ).remove();
 					slider.container.append( slider.slides.first().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) ).prepend( slider.slides.last().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) );
 				}
 				slider.newSlides = $( slider.vars.selector, slider );
@@ -875,7 +902,8 @@
 						slider.doMath();
 						slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
 						// SMOOTH HEIGHT
-						if ( slider.vars.smoothHeight ) methods.smoothHeight();
+						if ( slider.vars.smoothHeight )
+							methods.smoothHeight();
 					}, ( type === 'init' ) ? 100 : 0 );
 				}
 			} else { // FADE
@@ -888,11 +916,13 @@
 					}
 				}
 				// SMOOTH HEIGHT
-				if ( slider.vars.smoothHeight ) methods.smoothHeight();
+				if ( slider.vars.smoothHeight )
+					methods.smoothHeight();
 			}
 			// ! CAROUSEL
 			// CANDIDATE: active slide
-			if ( ! carousel ) slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
+			if ( ! carousel )
+				slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
 		};
 
 		slider.doMath = function() {
@@ -954,8 +984,8 @@
 				}
 			}
 			// Update directionNav
-			if ( slider.vars.directionNav ) methods.directionNav.update();
-
+			if ( slider.vars.directionNav )
+				methods.directionNav.update();
 		};
 
 		slider.addSlide = function( obj, pos ) {
@@ -1085,7 +1115,8 @@
 
 	// FlexSlider: Plugin Function
 	$.fn.flexslider = function( options ) {
-		if ( options === undefined ) options = {};
+		if ( options === undefined )
+			options = {};
 
 		if ( typeof options === 'object' ) {
 			return this.each( function() {
@@ -1110,7 +1141,7 @@
 				case 'next': $slider.flexAnimate( $slider.getTarget( 'next' ), true ); break;
 				case 'prev':
 				case 'previous': $slider.flexAnimate( $slider.getTarget( 'prev' ), true ); break;
-				default: if ( typeof options === 'number' ) $slider.flexAnimate( options, true );
+				default: if ( typeof options === 'number' ) $slider.flexAnimate( options, true ); break;
 			}
 		}
 	};
