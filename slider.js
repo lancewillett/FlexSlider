@@ -101,9 +101,8 @@
 				// TOUCH
 				methods.touch();
 
-				// SMOOTHHEIGHT || SLIDE
-				if ( slider.vars.smoothHeight )
-					$( window ).bind( 'resize orientationchange focus', methods.resize );
+				// SLIDE
+				$( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
 			},
@@ -413,7 +412,7 @@
 					slider.doMath();
 
 					// SMOOTH HEIGHT
-					if ( slider.vars.smoothHeight ) methods.smoothHeight();
+					methods.smoothHeight();
 					slider.newSlides.width( slider.computedW );
 					slider.setProps( slider.computedW, 'setTotal' );
 				}
@@ -489,8 +488,7 @@
 				}
 
 				// SMOOTH HEIGHT
-				if ( slider.vars.smoothHeight )
-					methods.smoothHeight( slider.vars.animationSpeed );
+				methods.smoothHeight( slider.vars.animationSpeed );
 			}
 		};
 		slider.wrapup = function( dimension ) {
@@ -600,8 +598,7 @@
 				slider.doMath();
 				slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
 				// SMOOTH HEIGHT
-				if ( slider.vars.smoothHeight )
-					methods.smoothHeight();
+				methods.smoothHeight();
 			}, ( type === 'init' ) ? 100 : 0 );
 
 			slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
@@ -651,7 +648,7 @@
 			slider.count += 1;
 			slider.last = slider.count - 1;
 
-			// Append new slide
+			// Append new slide.
 			if ( pos !== undefined )
 				slider.slides.eq( pos ).before( $obj );
 			else
