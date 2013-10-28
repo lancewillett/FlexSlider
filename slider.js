@@ -38,12 +38,6 @@
 				slider.count = slider.slides.length;
 				slider.prop = 'marginLeft';
 				slider.args = {};
-				// SLIDESHOW
-				slider.manualPause = false;
-				slider.stopped = false;
-				// PAUSE WHEN INVISIBLE
-				slider.started = false;
-				slider.startTimeout = null;
 				// TOUCH
 				slider.transitions = ( function() {
 					var obj = document.createElement( 'div' ),
@@ -77,19 +71,6 @@
 
 				// DIRECTIONNAV
 				methods.directionNav.setup();
-
-				// PAUSE WHEN INVISIBLE
-				if ( slider.vars.slideshow && slider.vars.pauseInvisible )
-					methods.pauseInvisible.init();
-
-				// SLIDSESHOW
-				if ( slider.vars.slideshow ) {
-					// Initialize animation
-					//If we're visible, or we don't use PageVisibility API
-					if ( ! slider.vars.pauseInvisible || ! methods.pauseInvisible.isHidden() ) {
-						( slider.vars.initDelay > 0 ) ? slider.startTimeout = setTimeout( slider.play, slider.vars.initDelay ) : slider.play();
-					}
-				}
 
 				// ASNAV
 				if ( asNav )
@@ -438,10 +419,6 @@
 				slider.animating = true;
 				slider.animatingTo = target;
 
-				// SLIDESHOW
-				if ( pause )
-					slider.pause();
-
 				// CONTROLNAV
 				methods.controlNav.active();
 
@@ -451,11 +428,6 @@
 
 				// DIRECTIONNAV
 				methods.directionNav.update();
-
-				if ( target === slider.last ) {
-					// SLIDESHOW
-					slider.pause();
-				}
 
 				// SLIDE
 				var dimension = slider.computedW,
@@ -499,29 +471,6 @@
 			slider.currentSlide = slider.animatingTo;
 		};
 
-		// SLIDESHOW
-		slider.animateSlides = function() {
-			if ( ! slider.animating && focused )
-				slider.featureAnimate( slider.getTarget( 'next' ) );
-		};
-		// SLIDESHOW
-		slider.pause = function() {
-			clearInterval( slider.animatedSlides );
-			slider.animatedSlides = null;
-			slider.playing = false;
-		};
-		// SLIDESHOW
-		slider.play = function() {
-			if ( slider.playing )
-				clearInterval( slider.animatedSlides );
-			slider.animatedSlides = slider.animatedSlides || setInterval( slider.animateSlides, slider.vars.slideshowSpeed );
-			slider.started = slider.playing = true;
-		};
-		// STOP:
-		slider.stop = function () {
-			slider.pause();
-			slider.stopped = true;
-		};
 		slider.canAdvance = function( target, fromNav ) {
 			// ASNAV
 			var last = ( asNav ) ? slider.pagingCount - 1 : slider.last;
