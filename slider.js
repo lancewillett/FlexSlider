@@ -82,8 +82,7 @@
 				slider.setup( 'init' );
 
 				// CONTROLNAV
-				if ( slider.vars.controlNav )
-					methods.controlNav.setup();
+				methods.controlNav.setup();
 
 				// DIRECTIONNAV
 				methods.directionNav.setup();
@@ -163,7 +162,7 @@
 					methods.controlNav.setupPaging();
 				},
 				setupPaging: function() {
-					var type = ( slider.vars.controlNav === 'thumbnails' ) ? 'control-thumbs' : 'control-paging',
+					var type = 'control-paging',
 						j = 1,
 						item,
 						slide;
@@ -173,11 +172,7 @@
 					if ( slider.pagingCount > 1 ) {
 						for ( var i = 0; i < slider.pagingCount; i++ ) {
 							slide = slider.slides.eq( i );
-							item = ( slider.vars.controlNav === 'thumbnails' ) ? '<img src="' + slide.attr( 'data-thumb' ) + '"/>' : '<a>' + j + '</a>';
-							if ( 'thumbnails' === slider.vars.controlNav && true === slider.vars.thumbCaptions ) {
-								var captn = slide.attr( 'data-thumbcaption' );
-								if ( '' != captn && undefined != captn ) item += '<span class="' + namespace + 'caption">' + captn + '</span>';
-							}
+							item = '<a>' + j + '</a>';
 							slider.controlNavScaffold.append( '<li>' + item + '</li>' );
 							j++;
 						}
@@ -210,7 +205,7 @@
 					} );
 				},
 				set: function() {
-					var selector = ( slider.vars.controlNav === 'thumbnails' ) ? 'img' : 'a';
+					var selector = 'a';
 					slider.controlNav = $( '.' + namespace + 'control-nav li ' + selector, ( slider.controlsContainer ) ? slider.controlsContainer : slider );
 				},
 				active: function() {
@@ -491,8 +486,7 @@
 					slider.pause();
 
 				// CONTROLNAV
-				if ( slider.vars.controlNav )
-					methods.controlNav.active();
+				methods.controlNav.active();
 
 				slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
 
@@ -727,16 +721,14 @@
 			slider.animatingTo = slider.currentSlide;
 
 			// Update controlNav
-			if ( slider.vars.controlNav ) {
-				if ( ( action === 'add' ) || slider.pagingCount > slider.controlNav.length ) {
-					methods.controlNav.update( 'add' );
-				} else if ( action === 'remove' || slider.pagingCount < slider.controlNav.length ) {
-					if ( slider.currentSlide > slider.last ) {
-						slider.currentSlide -= 1;
-						slider.animatingTo -= 1;
-					}
-					methods.controlNav.update( 'remove', slider.last );
+			if ( ( action === 'add' ) || slider.pagingCount > slider.controlNav.length ) {
+				methods.controlNav.update( 'add' );
+			} else if ( action === 'remove' || slider.pagingCount < slider.controlNav.length ) {
+				if ( slider.currentSlide > slider.last ) {
+					slider.currentSlide -= 1;
+					slider.animatingTo -= 1;
 				}
+				methods.controlNav.update( 'remove', slider.last );
 			}
 			// Update directionNav
 			methods.directionNav.update();
@@ -755,10 +747,10 @@
 				( pos !== undefined ) ? slider.slides.eq( pos ).before( $obj ) : slider.container.append( $obj );
 			}
 
-			// Update currentSlide, animatingTo, controlNav, and directionNav
+			// Update currentSlide, animatingTo, controlNav, and directionNav.
 			slider.update( pos, 'add' );
 
-			// Update slider.slides
+			// Update slider.slides.
 			slider.slides = $( slider.vars.selector + ':not(.clone )', slider );
 			// Le-setup the slider to accomdate new slide
 			slider.setup();
@@ -822,10 +814,9 @@
 		touch: true,                    // {NEW} Boolean: Allow touch swipe navigation of the slider on touch-enabled devices
 		video: false,                   // {NEW} Boolean: If using video in the slider, will prevent CSS3 3D Transforms to avoid graphical glitches
 
-		// Primary Controls
-		controlNav: true,               // Boolean: Create navigation for paging control of each slide? Note: Leave true for manualControls usage
-		prevText: 'Previous',           // String: Set the text for the 'previous' directionNav item
-		nextText: 'Next'               // String: Set the text for the 'next' directionNav item
+		// Text labels: @todo allow translation
+		prevText: 'Previous',     // String: Set the text for the "previous" directionNav item.
+		nextText: 'Next'          // String: Set the text for the "next" directionNav item.
 	};
 
 	// FeaturedSlider: Plugin Function
