@@ -10,7 +10,7 @@
 	$.featuredslider = function( el, options ) {
 		var slider = $( el );
 
-		// Making variables public.
+		// Make variables public.
 		slider.vars = $.extend( {}, $.featuredslider.defaults, options );
 
 		var namespace = slider.vars.namespace,
@@ -21,7 +21,6 @@
 			watchedEventClearTimer,
 			vertical = slider.vars.direction === 'vertical',
 			reverse = slider.vars.reverse,
-			carousel = ( slider.vars.itemWidth > 0 ),
 			fade = slider.vars.animation === 'fade',
 			asNav = slider.vars.asNavFor !== '',
 			methods = {},
@@ -159,7 +158,7 @@
 			asNav: {
 				setup: function() {
 					slider.asNav = true;
-					slider.animatingTo = Math.floor( slider.currentSlide/slider.move );
+					slider.animatingTo = Math.floor( slider.currentSlide );
 					slider.currentItem = slider.currentSlide;
 					slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentItem ).addClass( namespace + 'active-slide' );
 					if ( ! msGesture ) {
@@ -406,19 +405,16 @@
 							e.preventDefault();
 						} else if ( ( window.navigator.msPointerEnabled ) || e.touches.length === 1 ) {
 							slider.pause();
-							// CAROUSEL:
-							cwidth = ( vertical ) ? slider.h : slider. w;
+							cwidth = slider.w;
 							startT = Number( new Date() );
-							// CAROUSEL:
 
 							// Local vars for X and Y points.
 							localX = e.touches[0].pageX;
 							localY = e.touches[0].pageY;
 
-							offset = ( carousel && reverse && slider.animatingTo === slider.last ) ? 0 :
-									 ( carousel && reverse ) ? slider.limit - ( ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.animatingTo ) :
-									 ( carousel && slider.currentSlide === slider.last ) ? slider.limit :
-									 ( carousel ) ? ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.currentSlide :
+							offset = ( reverse && slider.animatingTo === slider.last ) ? 0 :
+									 ( reverse ) ? slider.limit - ( slider.itemW * slider.animatingTo ) :
+									 ( slider.currentSlide === slider.last ) ? slider.limit :
 									 ( reverse ) ? ( slider.last - slider.currentSlide + slider.cloneOffset ) * cwidth : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
 							startX = ( vertical ) ? localY : localX;
 							startY = ( vertical ) ? localX : localY;
@@ -488,15 +484,12 @@
 							slider.pause();
 							el._gesture.addPointer( e.pointerId );
 							accDx = 0;
-							cwidth = ( vertical ) ? slider.h : slider. w;
+							cwidth = ( vertical ) ? slider.h : slider.w;
 							startT = Number( new Date() );
-							// CAROUSEL:
-
-							offset = ( carousel && reverse && slider.animatingTo === slider.last ) ? 0 :
-									( carousel && reverse ) ? slider.limit - ( ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.animatingTo ) :
-											( carousel && slider.currentSlide === slider.last ) ? slider.limit :
-													( carousel ) ? ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.currentSlide :
-															( reverse ) ? ( slider.last - slider.currentSlide + slider.cloneOffset ) * cwidth : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
+							offset = ( reverse && slider.animatingTo === slider.last ) ? 0 :
+									( reverse ) ? slider.limit - ( slider.itemW * slider.animatingTo ) :
+									( slider.currentSlide === slider.last ) ? slider.limit :
+									( reverse ) ? ( slider.last - slider.currentSlide + slider.cloneOffset ) * cwidth : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
 						}
 					}
 
@@ -560,17 +553,12 @@
 			},
 			resize: function() {
 				if ( ! slider.animating && slider.is( ':visible' ) ) {
-					if ( ! carousel ) slider.doMath();
+					slider.doMath();
 
 					if ( fade ) {
 						// SMOOTH HEIGHT
 						methods.smoothHeight();
-					} else if ( carousel ) { // CAROUSEL:
-						slider.slides.width( slider.computedW );
-						slider.update( slider.pagingCount );
-						slider.setProps();
-					}
-					else if ( vertical ) { // VERTICAL
+					} else if ( vertical ) { // VERTICAL
 						slider.viewport.height( slider.h );
 						slider.setProps( slider.h, 'setTotal' );
 					} else {
@@ -678,10 +666,7 @@
 				if ( slider.vars.controlNav )
 					methods.controlNav.active();
 
-				// ! CAROUSEL
-				// CANDIDATE: slide active class ( for add/remove slide )
-				if ( ! carousel )
-					slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
+				slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
 
 				// INFINITE LOOP:
 				// CANDIDATE: atEnd
@@ -703,11 +688,7 @@
 						margin, slideString, calcNext;
 
 					// INFINITE LOOP / REVERSE:
-					if ( carousel ) {
-						margin = slider.vars.itemMargin;
-						calcNext = ( ( slider.itemW + margin ) * slider.move ) * slider.animatingTo;
-						slideString = ( calcNext > slider.limit && slider.visible !== 1 ) ? slider.limit : calcNext;
-					} else if ( slider.currentSlide === 0 && target === slider.count - 1 && slider.vars.animationLoop && slider.direction !== 'next' ) {
+					if ( slider.currentSlide === 0 && target === slider.count - 1 && slider.vars.animationLoop && slider.direction !== 'next' ) {
 						slideString = ( reverse ) ? ( slider.count + slider.cloneOffset ) * dimension : 0;
 					} else if ( slider.currentSlide === slider.last && target === 0 && slider.vars.animationLoop && slider.direction !== 'prev' ) {
 						slideString = ( reverse ) ? 0 : ( slider.count + 1 ) * dimension;
@@ -747,7 +728,7 @@
 		};
 		slider.wrapup = function( dimension ) {
 			// SLIDE
-			if ( ! fade && ! carousel ) {
+			if ( ! fade ) {
 				if ( slider.currentSlide === 0 && slider.animatingTo === slider.last && slider.vars.animationLoop ) {
 					slider.setProps( dimension, 'jumpEnd' );
 				} else if ( slider.currentSlide === slider.last && slider.animatingTo === 0 && slider.vars.animationLoop ) {
@@ -817,21 +798,14 @@
 		// SLIDE
 		slider.setProps = function( pos, special, dur ) {
 			var target = ( function() {
-				var posCheck = ( pos ) ? pos : ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.animatingTo,
+				var posCheck = ( pos ) ? pos : slider.itemW * slider.animatingTo,
 					posCalc = ( function() {
-						if ( carousel ) {
-							return ( special === 'setTouch' ) ? pos :
-								 ( reverse && slider.animatingTo === slider.last ) ? 0 :
-								 ( reverse ) ? slider.limit - ( ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.animatingTo ) :
-								 ( slider.animatingTo === slider.last ) ? slider.limit : posCheck;
-						} else {
-							switch ( special ) {
-								case 'setTotal': return ( reverse ) ? ( ( slider.count - 1 ) - slider.currentSlide + slider.cloneOffset ) * pos : ( slider.currentSlide + slider.cloneOffset ) * pos;
-								case 'setTouch': return ( reverse ) ? pos : pos;
-								case 'jumpEnd': return ( reverse ) ? pos : slider.count * pos;
-								case 'jumpStart': return ( reverse ) ? slider.count * pos : pos;
-								default: return pos;
-							}
+						switch ( special ) {
+							case 'setTotal': return ( reverse ) ? ( ( slider.count - 1 ) - slider.currentSlide + slider.cloneOffset ) * pos : ( slider.currentSlide + slider.cloneOffset ) * pos;
+							case 'setTouch': return ( reverse ) ? pos : pos;
+							case 'jumpEnd': return ( reverse ) ? pos : slider.count * pos;
+							case 'jumpStart': return ( reverse ) ? slider.count * pos : pos;
+							default: return pos;
 						}
 					}() );
 				return ( posCalc * -1 ) + 'px';
@@ -865,8 +839,8 @@
 						slider.container.empty().append( slider.slides );
 					}
 				}
-				// INFINITE LOOP && ! CAROUSEL
-				if ( slider.vars.animationLoop && ! carousel ) {
+				// INFINITE LOOP
+				if ( slider.vars.animationLoop ) {
 					slider.cloneCount = 2;
 					slider.cloneOffset = 1;
 					// Clear out old clones
@@ -878,7 +852,7 @@
 
 				sliderOffset = ( reverse ) ? slider.count - 1 - slider.currentSlide + slider.cloneOffset : slider.currentSlide + slider.cloneOffset;
 				// VERTICAL
-				if ( vertical && ! carousel ) {
+				if ( vertical ) {
 					slider.container.height( ( slider.count + slider.cloneCount ) * 200 + '%' ).css( 'position', 'absolute' ).width( '100%' );
 					setTimeout( function() {
 						slider.newSlides.css( {'display': 'block'} );
@@ -910,42 +884,19 @@
 				if ( slider.vars.smoothHeight )
 					methods.smoothHeight();
 			}
-			// ! CAROUSEL
-			// CANDIDATE: active slide
-			if ( ! carousel )
-				slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
+			slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
 		};
 
 		slider.doMath = function() {
-			var slide = slider.slides.first(),
-				slideMargin = slider.vars.itemMargin,
-				minItems = slider.vars.minItems,
-				maxItems = slider.vars.maxItems;
+			var slide = slider.slides.first();
 
 			slider.w = ( slider.viewport===undefined ) ? slider.width() : slider.viewport.width();
 			slider.h = slide.height();
 			slider.boxPadding = slide.outerWidth() - slide.width();
 
-			// CAROUSEL:
-			if ( carousel ) {
-				slider.itemT = slider.vars.itemWidth + slideMargin;
-				slider.minW = ( minItems ) ? minItems * slider.itemT : slider.w;
-				slider.maxW = ( maxItems ) ? ( maxItems * slider.itemT ) - slideMargin : slider.w;
-				slider.itemW = ( slider.minW > slider.w ) ? ( slider.w - ( slideMargin * ( minItems - 1 ) ) ) / minItems :
-							( slider.maxW < slider.w ) ? ( slider.w - ( slideMargin * ( maxItems - 1 ) ) ) / maxItems :
-							( slider.vars.itemWidth > slider.w ) ? slider.w : slider.vars.itemWidth;
-
-				slider.visible = Math.floor( slider.w / ( slider.itemW ) );
-				slider.move = ( slider.vars.move > 0 && slider.vars.move < slider.visible ) ? slider.vars.move : slider.visible;
-				slider.pagingCount = Math.ceil( ( ( slider.count - slider.visible ) / slider.move ) + 1 );
-				slider.last =  slider.pagingCount - 1;
-				slider.limit = ( slider.pagingCount === 1 ) ? 0 :
-											 ( slider.vars.itemWidth > slider.w ) ? ( slider.itemW * ( slider.count - 1 ) ) + ( slideMargin * ( slider.count - 1 ) ) : ( ( slider.itemW + slideMargin ) * slider.count ) - slider.w - slideMargin;
-			} else {
-				slider.itemW = slider.w;
-				slider.pagingCount = slider.count;
-				slider.last = slider.count - 1;
-			}
+			slider.itemW = slider.w;
+			slider.pagingCount = slider.count;
+			slider.last = slider.count - 1;
 			slider.computedW = slider.itemW - slider.boxPadding;
 		};
 
@@ -953,21 +904,19 @@
 			slider.doMath();
 
 			// Update currentSlide and slider.animatingTo if necessary
-			if ( ! carousel ) {
-				if ( pos < slider.currentSlide ) {
-					slider.currentSlide += 1;
-				} else if ( pos <= slider.currentSlide && pos !== 0 ) {
-					slider.currentSlide -= 1;
-				}
-				slider.animatingTo = slider.currentSlide;
+			if ( pos < slider.currentSlide ) {
+				slider.currentSlide += 1;
+			} else if ( pos <= slider.currentSlide && pos !== 0 ) {
+				slider.currentSlide -= 1;
 			}
+			slider.animatingTo = slider.currentSlide;
 
 			// Update controlNav
 			if ( slider.vars.controlNav && ! slider.manualControls ) {
-				if ( ( action === 'add' && ! carousel ) || slider.pagingCount > slider.controlNav.length ) {
+				if ( ( action === 'add' ) || slider.pagingCount > slider.controlNav.length ) {
 					methods.controlNav.update( 'add' );
-				} else if ( ( action === 'remove' && ! carousel ) || slider.pagingCount < slider.controlNav.length ) {
-					if ( carousel && slider.currentSlide > slider.last ) {
+				} else if ( action === 'remove' || slider.pagingCount < slider.controlNav.length ) {
+					if ( slider.currentSlide > slider.last ) {
 						slider.currentSlide -= 1;
 						slider.animatingTo -= 1;
 					}
@@ -1080,14 +1029,6 @@
 		manualControls: '',             // {UPDATED} jQuery Object/Selector: Declare custom control navigation. Examples would be $( '.flex-control-nav li' ) or '#tabs-nav li img', etc. The number of elements in your controlNav should match the number of slides/tabs.
 		sync: '',                       // {NEW} Selector: Mirror the actions performed on this slider with another slider. Use with care.
 		asNavFor: '',                   // {NEW} Selector: Internal property exposed for turning the slider into a thumbnail navigation for another slider
-
-		// Carousel Options
-		itemWidth: 0,                   // {NEW} Integer: Box-model width of individual carousel items, including horizontal borders and padding.
-		itemMargin: 0,                  // {NEW} Integer: Margin between carousel items.
-		minItems: 1,                    // {NEW} Integer: Minimum number of carousel items that should be visible. Items will resize fluidly when below this.
-		maxItems: 0,                    // {NEW} Integer: Maxmimum number of carousel items that should be visible. Items will resize fluidly when above this limit.
-		move: 0,                        // {NEW} Integer: Number of carousel items that should move on animation. If 0, slider will move all visible items.
-		allowOneSlide: true,            // {NEW} Boolean: Whether or not to allow a slider comprised of a single slide
 	};
 
 	// FeaturedSlider: Plugin Function
@@ -1101,7 +1042,7 @@
 					selector = ( options.selector ) ? options.selector : '.slides > li',
 					$slides = $this.find( selector );
 
-			if ( ( $slides.length === 1 && options.allowOneSlide === true ) || $slides.length === 0 ) {
+			if ( $slides.length === 1 || $slides.length === 0 ) {
 					$slides.fadeIn( 400 );
 					if ( options.start )
 						options.start( $this );
@@ -1109,18 +1050,6 @@
 					new $.featuredslider( this, options );
 				}
 			} );
-		} else {
-			// Helper strings to quickly perform functions on the slider
-			var $slider = $( this ).data( 'featuredslider' );
-			switch ( options ) {
-				case 'play': $slider.play(); break;
-				case 'pause': $slider.pause(); break;
-				case 'stop': $slider.stop(); break;
-				case 'next': $slider.flexAnimate( $slider.getTarget( 'next' ), true ); break;
-				case 'prev':
-				case 'previous': $slider.flexAnimate( $slider.getTarget( 'prev' ), true ); break;
-				default: if ( typeof options === 'number' ) $slider.flexAnimate( options, true ); break;
-			}
 		}
 	};
 } )( jQuery );
