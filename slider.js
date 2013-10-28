@@ -29,10 +29,7 @@
 		methods = {
 			init: function() {
 				slider.animating = false;
-				// Get current slide and make sure it is a number.
-				slider.currentSlide = parseInt( ( slider.vars.startAt ? slider.vars.startAt : 0 ), 10 );
-				if ( isNaN( slider.currentSlide ) )
-					slider.currentSlide = 0;
+				slider.currentSlide = 0;
 				slider.animatingTo = slider.currentSlide;
 				slider.atEnd = ( slider.currentSlide === 0 || slider.currentSlide === slider.last );
 				slider.containerSelector = slider.vars.selector.substr( 0, slider.vars.selector.search( ' ' ) );
