@@ -55,12 +55,6 @@
 				if ( slider.vars.controlsContainer !== '' )
 					slider.controlsContainer = $( slider.vars.controlsContainer ).length > 0 && $( slider.vars.controlsContainer );
 
-				// RANDOMIZE
-				if ( slider.vars.randomize ) {
-					slider.slides.sort( function() { return ( Math.round( Math.random() ) - 0.5 ); } );
-					slider.container.empty().append( slider.slides );
-				}
-
 				slider.doMath();
 
 				// INIT
