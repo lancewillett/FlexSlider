@@ -254,10 +254,8 @@
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
 							var updateDx = dx,
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-
-							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
-								slider.featureAnimate( target );
-							}
+							
+							slider.featureAnimate( target );
 						}
 						el.removeEventListener( 'touchend', onTouchEnd, false );
 
@@ -326,11 +324,9 @@
 
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
 							var updateDx = dx,
-							    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
+							    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );							
 
-							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
-								slider.featureAnimate( target );
-							}
+							slider.featureAnimate( target );
 						}
 
 						startX = null;
@@ -364,11 +360,11 @@
 		};
 
 		// Public methods.
-		slider.featureAnimate = function( target, override ) {
+		slider.featureAnimate = function( target ) {
 			if ( target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
 
-			if ( ! slider.animating && ( slider.canAdvance( target ) || override ) && slider.is( ':visible' ) ) {
+			if ( ! slider.animating && slider.is( ':visible' ) ) {
 				slider.animating = true;
 				slider.animatingTo = target;
 
@@ -423,13 +419,6 @@
 			}
 			slider.animating = false;
 			slider.currentSlide = slider.animatingTo;
-		};
-
-		slider.canAdvance = function( target ) {
-			var last = slider.last;
-			return ( target === slider.currentSlide ) ? false :
-				( slider.atEnd && slider.currentSlide === 0 && target === last && slider.direction !== 'next' ) ? false :
-				true;
 		};
 
 		slider.getTarget = function( dir ) {
