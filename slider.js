@@ -66,61 +66,27 @@
 				// DIRECTIONNAV
 				methods.directionNav.setup();
 
-				// ASNAV
-				if ( asNav )
-					methods.asNav.setup();
+				// KEYBOARD
+				if ( $( slider.containerSelector ).length === 1 ) {
+					$( document ).bind( 'keyup', function( event ) {
+						var keycode = event.keyCode;
+						if ( ! slider.animating && ( keycode === 39 || keycode === 37 ) ) {
+							var target = ( keycode === 39 ) ? slider.getTarget( 'next' ) : ( keycode === 37 ) ? slider.getTarget( 'prev' ) : false;
+							slider.featureAnimate( target );
+						}
+					} );
+				}
 
 				// TOUCH
-				methods.touch();
+				if ( touch )
+					methods.touch();
 
 				// SLIDE
 				$( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
 			},
-			asNav: {
-				setup: function() {
-					slider.asNav = true;
-					slider.animatingTo = Math.floor( slider.currentSlide );
-					slider.currentItem = slider.currentSlide;
-					slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentItem ).addClass( namespace + 'active-slide' );
-					if ( ! msGesture ) {
-						slider.slides.click( function( e ) {
-							e.preventDefault();
-							var $slide = $( this ),
-									target = $slide.index();
-							var posFromLeft = $slide.offset().left - $( slider ).scrollLeft(); // Find position of slide relative to left of slider container
-							if ( posFromLeft <= 0 && $slide.hasClass( namespace + 'active-slide' ) ) {
-								slider.featureAnimate( slider.getTarget( 'prev' ), true );
-							} else if ( ! $slide.hasClass( namespace + 'active-slide' ) ) {
-								slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-								slider.featureAnimate( target, false, true, true );
-							}
-						} );
-					} else {
-						el._slider = slider;
-						slider.slides.each( function () {
-							var that = this;
-							that._gesture = new MSGesture();
-							that._gesture.target = that;
-							that.addEventListener( 'MSPointerDown', function ( e ) {
-								e.preventDefault();
-								if ( e.currentTarget._gesture )
-									e.currentTarget._gesture.addPointer( e.pointerId );
-							}, false );
-							that.addEventListener( 'MSGestureTap', function ( e ) {
-								e.preventDefault();
-								var $slide = $( this ),
-									target = $slide.index();
-								if ( ! $slide.hasClass( 'active' ) ) {
-									slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-									slider.featureAnimate( target, false, true, true );
-								}
-							} );
-						} );
-					}
-				}
-			},
+
 			controlNav: {
 				setup: function() {
 					methods.controlNav.setupPaging();
@@ -406,7 +372,7 @@
 			if ( target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
 
-			if ( asNav && slider.pagingCount === 1 )
+			if ( slider.pagingCount === 1 )
 				slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 
 			if ( ! slider.animating && ( slider.canAdvance( target, fromNav ) || override ) && slider.is( ':visible' ) ) {
@@ -466,12 +432,10 @@
 		};
 
 		slider.canAdvance = function( target, fromNav ) {
-			// ASNAV
-			var last = ( asNav ) ? slider.pagingCount - 1 : slider.last;
+			var last = slider.last;
 			return ( fromNav ) ? true :
-				( asNav && slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
-				( asNav && slider.currentItem === 0 && target === slider.pagingCount - 1 && slider.direction !== 'next' ) ? false :
-				( target === slider.currentSlide && ! asNav ) ? false :
+				( slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
+				( slider.currentItem === 0 && target === slider.pagingCount - 1 && slider.direction !== 'next' ) ? false :
 				( slider.atEnd && slider.currentSlide === 0 && target === last && slider.direction !== 'next' ) ? false :
 				( slider.atEnd && slider.currentSlide === last && target === 0 && slider.direction === 'next' ) ? false :
 				true;
