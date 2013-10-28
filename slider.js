@@ -21,7 +21,6 @@
 			watchedEventClearTimer,
 			vertical = slider.vars.direction === 'vertical',
 			reverse = slider.vars.reverse,
-			fade = slider.vars.animation === 'fade',
 			methods = {},
 			focused = true;
 
@@ -42,9 +41,6 @@
 				slider.slides = $( slider.vars.selector, slider );
 				slider.container = $( slider.containerSelector, slider );
 				slider.count = slider.slides.length;
-				// SLIDE
-				if ( slider.vars.animation === 'slide' )
-					slider.vars.animation = 'swing';
 				slider.prop = ( vertical ) ? 'top' : 'marginLeft';
 				slider.args = {};
 				// SLIDESHOW
@@ -54,7 +50,7 @@
 				slider.started = false;
 				slider.startTimeout = null;
 				// TOUCH
-				slider.transitions = ! fade && ( function() {
+				slider.transitions = ( function() {
 					var obj = document.createElement( 'div' ),
 						props = ['perspectiveProperty', 'WebkitPerspective', 'MozPerspective', 'OPerspective', 'msPerspective'];
 					for ( var i in props ) {
@@ -107,8 +103,8 @@
 				// TOUCH
 				methods.touch();
 
-				// FADE && SMOOTHHEIGHT || SLIDE
-				if ( ! fade || ( fade && slider.vars.smoothHeight ) )
+				// SMOOTHHEIGHT || SLIDE
+				if ( slider.vars.smoothHeight )
 					$( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
@@ -126,10 +122,10 @@
 									target = $slide.index();
 							var posFromLeft = $slide.offset().left - $( slider ).scrollLeft(); // Find position of slide relative to left of slider container
 							if ( posFromLeft <= 0 && $slide.hasClass( namespace + 'active-slide' ) ) {
-								slider.flexAnimate( slider.getTarget( 'prev' ), true );
+								slider.featureAnimate( slider.getTarget( 'prev' ), true );
 							} else if ( ! $slide.hasClass( namespace + 'active-slide' ) ) {
 								slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-								slider.flexAnimate( target, false, true, true );
+								slider.featureAnimate( target, false, true, true );
 							}
 						} );
 					} else {
@@ -149,7 +145,7 @@
 									target = $slide.index();
 								if ( ! $slide.hasClass( 'active' ) ) {
 									slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-									slider.flexAnimate( target, false, true, true );
+									slider.featureAnimate( target, false, true, true );
 								}
 							} );
 						} );
@@ -192,7 +188,7 @@
 
 							if ( ! $this.hasClass( namespace + 'active' ) ) {
 								slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
-								slider.flexAnimate( target );
+								slider.featureAnimate( target );
 							}
 						}
 
@@ -243,7 +239,7 @@
 
 						if ( watchedEvent === '' || watchedEvent === event.type ) {
 							target = ( $( this ).hasClass( namespace + 'next' ) ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-							slider.flexAnimate( target );
+							slider.featureAnimate( target );
 						}
 
 						// Set up flags to prevent event duplication
@@ -257,14 +253,6 @@
 					var disabledClass = namespace + 'disabled';
 					if ( slider.pagingCount === 1 ) {
 						slider.directionNav.addClass( disabledClass ).attr( 'tabindex', '-1' );
-					} else if ( ! slider.vars.animationLoop ) {
-						if ( slider.animatingTo === 0 ) {
-							slider.directionNav.removeClass( disabledClass ).filter( '.' + namespace + 'prev' ).addClass( disabledClass ).attr( 'tabindex', '-1' );
-						} else if ( slider.animatingTo === slider.last ) {
-							slider.directionNav.removeClass( disabledClass ).filter( '.' + namespace + 'next' ).addClass( disabledClass ).attr( 'tabindex', '-1' );
-						} else {
-							slider.directionNav.removeClass( disabledClass ).removeAttr( 'tabindex' );
-						}
 					} else {
 						slider.directionNav.removeClass( disabledClass ).removeAttr( 'tabindex' );
 					}
@@ -322,10 +310,7 @@
 
 						if ( ! scrolling || Number( new Date() ) - startT > fxms ) {
 							e.preventDefault();
-							if ( ! fade && slider.transitions ) {
-								if ( ! slider.vars.animationLoop ) {
-									dx = dx / ( ( slider.currentSlide === 0 && dx < 0 || slider.currentSlide === slider.last && dx > 0 ) ? ( Math.abs( dx ) / cwidth + 2 ) : 1 );
-								}
+							if ( slider.transitions ) {
 								slider.setProps( offset + dx, 'setTouch' );
 							}
 						}
@@ -340,9 +325,7 @@
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
-								slider.flexAnimate( target );
-							} else {
-								if ( ! fade ) slider.flexAnimate( slider.currentSlide, true );
+								slider.featureAnimate( target );
 							}
 						}
 						el.removeEventListener( 'touchend', onTouchEnd, false );
@@ -402,10 +385,7 @@
 
 						if ( ! scrolling || Number( new Date() ) - startT > 500 ) {
 							e.preventDefault();
-							if ( ! fade && slider.transitions ) {
-								if ( ! slider.vars.animationLoop ) {
-									dx = accDx / ( ( slider.currentSlide === 0 && accDx < 0 || slider.currentSlide === slider.last && accDx > 0 ) ? ( Math.abs( accDx ) / cwidth + 2 ) : 1 );
-								}
+							if ( slider.transitions ) {
 								slider.setProps( offset + dx, 'setTouch' );
 							}
 						}
@@ -422,9 +402,7 @@
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
-								slider.flexAnimate( target );
-							} else {
-								if ( ! fade ) slider.flexAnimate( slider.currentSlide, true );
+								slider.featureAnimate( target );
 							}
 						}
 
@@ -440,10 +418,7 @@
 				if ( ! slider.animating && slider.is( ':visible' ) ) {
 					slider.doMath();
 
-					if ( fade ) {
-						// SMOOTH HEIGHT
-						methods.smoothHeight();
-					} else if ( vertical ) { // VERTICAL
+					if ( vertical ) { // VERTICAL
 						slider.viewport.height( slider.h );
 						slider.setProps( slider.h, 'setTotal' );
 					} else {
@@ -455,8 +430,8 @@
 				}
 			},
 			smoothHeight: function( dur ) {
-				if ( ! vertical || fade ) {
-					var $obj = ( fade ) ? slider : slider.viewport;
+				if ( ! vertical ) {
+					var $obj = slider.viewport;
 					( dur ) ? $obj.animate( {'height': slider.slides.eq( slider.animatingTo ).height()}, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
 				}
 			},
@@ -469,8 +444,8 @@
 		};
 
 		// Public methods
-		slider.flexAnimate = function( target, pause, override, fromNav ) {
-			if ( ! slider.vars.animationLoop && target !== slider.currentSlide )
+		slider.featureAnimate = function( target, override ) {
+			if ( target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
 
 			if ( asNav && slider.pagingCount === 1 )
@@ -489,58 +464,44 @@
 
 				slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
 
-				// INFINITE LOOP:
-				// CANDIDATE: atEnd
 				slider.atEnd = target === 0 || target === slider.last;
 
 				// DIRECTIONNAV
 				methods.directionNav.update();
 
 				if ( target === slider.last ) {
-					// SLIDESHOW && ! INFINITE LOOP:
-					if ( ! slider.vars.animationLoop )
-						slider.pause();
+					// SLIDESHOW
+					slider.pause();
 				}
 
 				// SLIDE
-				if ( ! fade ) {
-					var dimension = ( vertical ) ? slider.slides.filter( ':first' ).height() : slider.computedW,
-						margin, slideString, calcNext;
+				var dimension = ( vertical ) ? slider.slides.filter( ':first' ).height() : slider.computedW,
+					margin, slideString, calcNext;
 
-					// INFINITE LOOP / REVERSE:
-					if ( slider.currentSlide === 0 && target === slider.count - 1 && slider.vars.animationLoop && slider.direction !== 'next' ) {
-						slideString = ( reverse ) ? ( slider.count + slider.cloneOffset ) * dimension : 0;
-					} else if ( slider.currentSlide === slider.last && target === 0 && slider.vars.animationLoop && slider.direction !== 'prev' ) {
-						slideString = ( reverse ) ? 0 : ( slider.count + 1 ) * dimension;
-					} else {
-						slideString = ( reverse ) ? ( ( slider.count - 1 ) - target + slider.cloneOffset ) * dimension : ( target + slider.cloneOffset ) * dimension;
-					}
-					slider.setProps( slideString, '', slider.vars.animationSpeed );
-					if ( slider.transitions ) {
-						if ( ! slider.vars.animationLoop || ! slider.atEnd ) {
-							slider.animating = false;
-							slider.currentSlide = slider.animatingTo;
-						}
-						slider.container.unbind( 'webkitTransitionEnd transitionend' );
-						slider.container.bind( 'webkitTransitionEnd transitionend', function() {
-							slider.wrapup( dimension );
-						} );
-					} else {
-						slider.container.animate( slider.args, slider.vars.animationSpeed, slider.vars.easing, function() {
-							slider.wrapup( dimension );
-						} );
-					}
-				} else { // FADE
-					if ( ! touch ) {
-						slider.slides.eq( slider.currentSlide ).css( {'zIndex': 1} ).animate( {'opacity': 0}, slider.vars.animationSpeed, slider.vars.easing );
-						slider.slides.eq( target ).css( {'zIndex': 2} ).animate( {'opacity': 1}, slider.vars.animationSpeed, slider.vars.easing, slider.wrapup );
-
-					} else {
-						slider.slides.eq( slider.currentSlide ).css( { 'opacity': 0, 'zIndex': 1 } );
-						slider.slides.eq( target ).css( { 'opacity': 1, 'zIndex': 2 } );
-						slider.wrapup( dimension );
-					}
+				// REVERSE:
+				if ( slider.currentSlide === 0 && target === slider.count - 1 && slider.direction !== 'next' ) {
+					slideString = ( reverse ) ? ( slider.count + slider.cloneOffset ) * dimension : 0;
+				} else if ( slider.currentSlide === slider.last && target === 0 && slider.direction !== 'prev' ) {
+					slideString = ( reverse ) ? 0 : ( slider.count + 1 ) * dimension;
+				} else {
+					slideString = ( reverse ) ? ( ( slider.count - 1 ) - target + slider.cloneOffset ) * dimension : ( target + slider.cloneOffset ) * dimension;
 				}
+				slider.setProps( slideString, '', slider.vars.animationSpeed );
+				if ( slider.transitions ) {
+					if ( ! slider.atEnd ) {
+						slider.animating = false;
+						slider.currentSlide = slider.animatingTo;
+					}
+					slider.container.unbind( 'webkitTransitionEnd transitionend' );
+					slider.container.bind( 'webkitTransitionEnd transitionend', function() {
+						slider.wrapup( dimension );
+					} );
+				} else {
+					slider.container.animate( slider.args, slider.vars.animationSpeed, 'swing', function() {
+						slider.wrapup( dimension );
+					} );
+				}
+
 				// SMOOTH HEIGHT
 				if ( slider.vars.smoothHeight )
 					methods.smoothHeight( slider.vars.animationSpeed );
@@ -548,12 +509,10 @@
 		};
 		slider.wrapup = function( dimension ) {
 			// SLIDE
-			if ( ! fade ) {
-				if ( slider.currentSlide === 0 && slider.animatingTo === slider.last && slider.vars.animationLoop ) {
-					slider.setProps( dimension, 'jumpEnd' );
-				} else if ( slider.currentSlide === slider.last && slider.animatingTo === 0 && slider.vars.animationLoop ) {
-					slider.setProps( dimension, 'jumpStart' );
-				}
+			if ( slider.currentSlide === 0 && slider.animatingTo === slider.last ) {
+				slider.setProps( dimension, 'jumpEnd' );
+			} else if ( slider.currentSlide === slider.last && slider.animatingTo === 0 ) {
+				slider.setProps( dimension, 'jumpStart' );
 			}
 			slider.animating = false;
 			slider.currentSlide = slider.animatingTo;
@@ -562,7 +521,7 @@
 		// SLIDESHOW
 		slider.animateSlides = function() {
 			if ( ! slider.animating && focused )
-				slider.flexAnimate( slider.getTarget( 'next' ) );
+				slider.featureAnimate( slider.getTarget( 'next' ) );
 		};
 		// SLIDESHOW
 		slider.pause = function() {
@@ -589,7 +548,6 @@
 				( asNav && slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
 				( asNav && slider.currentItem === 0 && target === slider.pagingCount - 1 && slider.direction !== 'next' ) ? false :
 				( target === slider.currentSlide && ! asNav ) ? false :
-				( slider.vars.animationLoop ) ? true :
 				( slider.atEnd && slider.currentSlide === 0 && target === last && slider.direction !== 'next' ) ? false :
 				( slider.atEnd && slider.currentSlide === last && target === 0 && slider.direction === 'next' ) ? false :
 				true;
@@ -632,66 +590,51 @@
 
 		slider.setup = function( type ) {
 			// SLIDE
-			if ( ! fade ) {
-				var sliderOffset, arr;
+			var sliderOffset, arr;
 
-				if ( type === 'init' ) {
-					slider.viewport = $( '<div class="' + namespace + 'viewport"></div>' ).css( {'overflow': 'hidden', 'position': 'relative'} ).appendTo( slider ).append( slider.container );
-					// INFINITE LOOP:
-					slider.cloneCount = 0;
-					slider.cloneOffset = 0;
-					// REVERSE:
-					if ( reverse ) {
-						arr = $.makeArray( slider.slides ).reverse();
-						slider.slides = $( arr );
-						slider.container.empty().append( slider.slides );
-					}
+			if ( type === 'init' ) {
+				slider.viewport = $( '<div class="' + namespace + 'viewport"></div>' ).css( {'overflow': 'hidden', 'position': 'relative'} ).appendTo( slider ).append( slider.container );
+				slider.cloneCount = 0;
+				slider.cloneOffset = 0;
+				// REVERSE:
+				if ( reverse ) {
+					arr = $.makeArray( slider.slides ).reverse();
+					slider.slides = $( arr );
+					slider.container.empty().append( slider.slides );
 				}
-				// INFINITE LOOP
-				if ( slider.vars.animationLoop ) {
-					slider.cloneCount = 2;
-					slider.cloneOffset = 1;
-					// Clear out old clones
-					if ( type !== 'init' )	
-						slider.container.find( '.clone' ).remove();
-					slider.container.append( slider.slides.first().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) ).prepend( slider.slides.last().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) );
-				}
-				slider.newSlides = $( slider.vars.selector, slider );
-
-				sliderOffset = ( reverse ) ? slider.count - 1 - slider.currentSlide + slider.cloneOffset : slider.currentSlide + slider.cloneOffset;
-				// VERTICAL
-				if ( vertical ) {
-					slider.container.height( ( slider.count + slider.cloneCount ) * 200 + '%' ).css( 'position', 'absolute' ).width( '100%' );
-					setTimeout( function() {
-						slider.newSlides.css( {'display': 'block'} );
-						slider.doMath();
-						slider.viewport.height( slider.h );
-						slider.setProps( sliderOffset * slider.h, 'init' );
-					}, ( type === 'init' ) ? 100 : 0 );
-				} else {
-					slider.container.width( ( slider.count + slider.cloneCount ) * 200 + '%' );
-					slider.setProps( sliderOffset * slider.computedW, 'init' );
-					setTimeout( function() {
-						slider.doMath();
-						slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
-						// SMOOTH HEIGHT
-						if ( slider.vars.smoothHeight )
-							methods.smoothHeight();
-					}, ( type === 'init' ) ? 100 : 0 );
-				}
-			} else { // FADE
-				slider.slides.css( {'width': '100%', 'float': 'left', 'marginRight': '-100%', 'position': 'relative'} );
-				if ( type === 'init' ) {
-					if ( ! touch ) {
-						slider.slides.css( { 'opacity': 0, 'display': 'block', 'zIndex': 1 } ).eq( slider.currentSlide ).css( {'zIndex': 2} ).animate( {'opacity': 1},slider.vars.animationSpeed,slider.vars.easing );
-					} else {
-						slider.slides.css( { 'opacity': 0, 'display': 'block', 'webkitTransition': 'opacity ' + slider.vars.animationSpeed / 1000 + 's ease', 'zIndex': 1 } ).eq( slider.currentSlide ).css( { 'opacity': 1, 'zIndex': 2} );
-					}
-				}
-				// SMOOTH HEIGHT
-				if ( slider.vars.smoothHeight )
-					methods.smoothHeight();
 			}
+			slider.cloneCount = 2;
+			slider.cloneOffset = 1;
+			// Clear out old clones
+			if ( type !== 'init' )	
+				slider.container.find( '.clone' ).remove();
+
+			slider.container.append( slider.slides.first().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) ).prepend( slider.slides.last().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) );
+
+			slider.newSlides = $( slider.vars.selector, slider );
+
+			sliderOffset = ( reverse ) ? slider.count - 1 - slider.currentSlide + slider.cloneOffset : slider.currentSlide + slider.cloneOffset;
+			// VERTICAL
+			if ( vertical ) {
+				slider.container.height( ( slider.count + slider.cloneCount ) * 200 + '%' ).css( 'position', 'absolute' ).width( '100%' );
+				setTimeout( function() {
+					slider.newSlides.css( {'display': 'block'} );
+					slider.doMath();
+					slider.viewport.height( slider.h );
+					slider.setProps( sliderOffset * slider.h, 'init' );
+				}, ( type === 'init' ) ? 100 : 0 );
+			} else {
+				slider.container.width( ( slider.count + slider.cloneCount ) * 200 + '%' );
+				slider.setProps( sliderOffset * slider.computedW, 'init' );
+				setTimeout( function() {
+					slider.doMath();
+					slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
+					// SMOOTH HEIGHT
+					if ( slider.vars.smoothHeight )
+						methods.smoothHeight();
+				}, ( type === 'init' ) ? 100 : 0 );
+			}
+
 			slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
 		};
 
@@ -791,22 +734,10 @@
 
 	// FeaturedSlider: Default Settings
 	$.featuredslider.defaults = {
-		namespace: 'flex-',             // {NEW} String: Prefix string attached to the class of every element generated by the plugin
+		namespace: 'slider',             // {NEW} String: Prefix string attached to the class of every element generated by the plugin
 		selector: '.slides > li',       // {NEW} Selector: Must match a simple pattern. '{container} > {slide}' -- Ignore pattern at your own peril
 		controlsContainer: '',          // {UPDATED} jQuery Object/Selector: Declare which container the navigation elements should be appended too. Default container is the FeaturedSlider element. Example use would be $( '.featuredslider-container' ). Property is ignored if given element is not found.
-		animation: 'fade',              // String: Select your animation type, 'fade' or 'slide'
-		easing: 'swing',                // {NEW} String: Determines the easing method used in jQuery transitions. jQuery easing plugin is supported!
-		direction: 'horizontal',        // String: Select the sliding direction, 'horizontal' or 'vertical'
-		reverse: false,                 // {NEW} Boolean: Reverse the animation direction
-		animationLoop: true,            // Boolean: Should the animation loop? If false, directionNav will received 'disable' classes at either end
-		smoothHeight: false,            // {NEW} Boolean: Allow height of the slider to animate smoothly in horizontal mode
-		startAt: 0,                     // Integer: The slide that the slider should start on. Array notation ( 0 = first slide )
-		slideshow: true,                // Boolean: Animate slider automatically
-		slideshowSpeed: 7000,           // Integer: Set the speed of the slideshow cycling, in milliseconds
 		animationSpeed: 600,            // Integer: Set the speed of animations, in milliseconds
-		initDelay: 0,                   // {NEW} Integer: Set an initialization delay, in milliseconds
-		randomize: false,               // Boolean: Randomize slide order
-		thumbCaptions: false,           // Boolean: Whether or not to put captions on thumbnails when using the 'thumbnails' controlNav.
 
 		// Text labels: @todo allow translation
 		prevText: 'Previous',     // String: Set the text for the "previous" directionNav item.
