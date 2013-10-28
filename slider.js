@@ -6,11 +6,11 @@
 ;
 ( function ( $ ) {
 
-	// FlexSlider: Object Instance
+	// FlexSlider: object instance.
 	$.flexslider = function( el, options ) {
 		var slider = $( el );
 
-		// Making variables public
+		// Making variables public.
 		slider.vars = $.extend( {}, $.flexslider.defaults, options );
 
 		var namespace = slider.vars.namespace,
@@ -27,14 +27,14 @@
 			methods = {},
 			focused = true;
 
-		// Store a reference to the slider object
+		// Store a reference to the slider object.
 		$.data( el, 'flexslider', slider );
 
-		// Private slider methods
+		// Private slider methods.
 		methods = {
 			init: function() {
 				slider.animating = false;
-				// Get current slide and make sure it is a number
+				// Get current slide and make sure it is a number.
 				slider.currentSlide = parseInt( ( slider.vars.startAt ? slider.vars.startAt : 0 ), 10 );
 				if ( isNaN( slider.currentSlide ) ) slider.currentSlide = 0;
 				slider.animatingTo = slider.currentSlide;
@@ -43,19 +43,19 @@
 				slider.slides = $( slider.vars.selector, slider );
 				slider.container = $( slider.containerSelector, slider );
 				slider.count = slider.slides.length;
-				// SYNC:
+				// SYNC
 				slider.syncExists = $( slider.vars.sync ).length > 0;
-				// SLIDE:
+				// SLIDE
 				if ( slider.vars.animation === 'slide' ) slider.vars.animation = 'swing';
 				slider.prop = ( vertical ) ? 'top' : 'marginLeft';
 				slider.args = {};
-				// SLIDESHOW:
+				// SLIDESHOW
 				slider.manualPause = false;
 				slider.stopped = false;
-				//PAUSE WHEN INVISIBLE
+				// PAUSE WHEN INVISIBLE
 				slider.started = false;
 				slider.startTimeout = null;
-				// TOUCH/USECSS:
+				// TOUCH/USECSS
 				slider.transitions = ! slider.vars.video && ! fade && slider.vars.useCSS && ( function() {
 					var obj = document.createElement( 'div' ),
 						props = ['perspectiveProperty', 'WebkitPerspective', 'MozPerspective', 'OPerspective', 'msPerspective'];
@@ -68,12 +68,12 @@
 					}
 					return false;
 				}() );
-				// CONTROLSCONTAINER:
+				// CONTROLSCONTAINER
 				if ( slider.vars.controlsContainer !== '' ) slider.controlsContainer = $( slider.vars.controlsContainer ).length > 0 && $( slider.vars.controlsContainer );
-				// MANUAL:
+				// MANUAL
 				if ( slider.vars.manualControls !== '' ) slider.manualControls = $( slider.vars.manualControls ).length > 0 && $( slider.vars.manualControls );
 
-				// RANDOMIZE:
+				// RANDOMIZE
 				if ( slider.vars.randomize ) {
 					slider.slides.sort( function() { return ( Math.round( Math.random() ) - 0.5 ); } );
 					slider.container.empty().append( slider.slides );
@@ -84,13 +84,13 @@
 				// INIT
 				slider.setup( 'init' );
 
-				// CONTROLNAV:
+				// CONTROLNAV
 				if ( slider.vars.controlNav ) methods.controlNav.setup();
 
-				// DIRECTIONNAV:
+				// DIRECTIONNAV
 				if ( slider.vars.directionNav ) methods.directionNav.setup();
 
-				// KEYBOARD:
+				// KEYBOARD
 				if ( slider.vars.keyboard && ( $( slider.containerSelector ).length === 1 || slider.vars.multipleKeyboard ) ) {
 					$( document ).bind( 'keyup', function( event ) {
 						var keycode = event.keyCode;
@@ -101,7 +101,7 @@
 						}
 					} );
 				}
-				// MOUSEWHEEL:
+				// MOUSEWHEEL
 				if ( slider.vars.mousewheel ) {
 					slider.bind( 'mousewheel', function( event, delta, deltaX, deltaY ) {
 						event.preventDefault();
@@ -132,13 +132,13 @@
 					}
 				}
 
-				// ASNAV:
+				// ASNAV
 				if ( asNav ) methods.asNav.setup();
 
 				// TOUCH
 				if ( touch && slider.vars.touch ) methods.touch();
 
-				// FADE && SMOOTHHEIGHT || SLIDE:
+				// FADE && SMOOTHHEIGHT || SLIDE
 				if ( ! fade || ( fade && slider.vars.smoothHeight ) ) $( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
@@ -556,18 +556,18 @@
 					if ( ! carousel ) slider.doMath();
 
 					if ( fade ) {
-						// SMOOTH HEIGHT:
+						// SMOOTH HEIGHT
 						methods.smoothHeight();
 					} else if ( carousel ) { // CAROUSEL:
 						slider.slides.width( slider.computedW );
 						slider.update( slider.pagingCount );
 						slider.setProps();
 					}
-					else if ( vertical ) { // VERTICAL:
+					else if ( vertical ) { // VERTICAL
 						slider.viewport.height( slider.h );
 						slider.setProps( slider.h, 'setTotal' );
 					} else {
-						// SMOOTH HEIGHT:
+						// SMOOTH HEIGHT
 						if ( slider.vars.smoothHeight ) methods.smoothHeight();
 						slider.newSlides.width( slider.computedW );
 						slider.setProps( slider.computedW, 'setTotal' );
@@ -656,19 +656,19 @@
 				slider.animating = true;
 				slider.animatingTo = target;
 
-				// SLIDESHOW:
+				// SLIDESHOW
 				if ( pause ) slider.pause();
 
 				// API: before() animation Callback
 				slider.vars.before( slider );
 
-				// SYNC:
+				// SYNC
 				if ( slider.syncExists && ! fromNav ) methods.sync( 'animate' );
 
 				// CONTROLNAV
 				if ( slider.vars.controlNav ) methods.controlNav.active();
 
-				// ! CAROUSEL:
+				// ! CAROUSEL
 				// CANDIDATE: slide active class ( for add/remove slide )
 				if ( ! carousel ) slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
 
@@ -676,7 +676,7 @@
 				// CANDIDATE: atEnd
 				slider.atEnd = target === 0 || target === slider.last;
 
-				// DIRECTIONNAV:
+				// DIRECTIONNAV
 				if ( slider.vars.directionNav ) methods.directionNav.update();
 
 				if ( target === slider.last ) {
@@ -686,7 +686,7 @@
 					if ( ! slider.vars.animationLoop ) slider.pause();
 				}
 
-				// SLIDE:
+				// SLIDE
 				if ( ! fade ) {
 					var dimension = ( vertical ) ? slider.slides.filter( ':first' ).height() : slider.computedW,
 						margin, slideString, calcNext;
@@ -718,7 +718,7 @@
 							slider.wrapup( dimension );
 						} );
 					}
-				} else { // FADE:
+				} else { // FADE
 					if ( ! touch ) {
 						slider.slides.eq( slider.currentSlide ).css( {'zIndex': 1} ).animate( {'opacity': 0}, slider.vars.animationSpeed, slider.vars.easing );
 						slider.slides.eq( target ).css( {'zIndex': 2} ).animate( {'opacity': 1}, slider.vars.animationSpeed, slider.vars.easing, slider.wrapup );
@@ -729,12 +729,12 @@
 						slider.wrapup( dimension );
 					}
 				}
-				// SMOOTH HEIGHT:
+				// SMOOTH HEIGHT
 				if ( slider.vars.smoothHeight ) methods.smoothHeight( slider.vars.animationSpeed );
 			}
 		};
 		slider.wrapup = function( dimension ) {
-			// SLIDE:
+			// SLIDE
 			if ( ! fade && ! carousel ) {
 				if ( slider.currentSlide === 0 && slider.animatingTo === slider.last && slider.vars.animationLoop ) {
 					slider.setProps( dimension, 'jumpEnd' );
@@ -748,28 +748,28 @@
 			slider.vars.after( slider );
 		};
 
-		// SLIDESHOW:
+		// SLIDESHOW
 		slider.animateSlides = function() {
 			if ( ! slider.animating && focused ) slider.flexAnimate( slider.getTarget( 'next' ) );
 		};
-		// SLIDESHOW:
+		// SLIDESHOW
 		slider.pause = function() {
 			clearInterval( slider.animatedSlides );
 			slider.animatedSlides = null;
 			slider.playing = false;
 			// PAUSEPLAY:
 			if ( slider.vars.pausePlay ) methods.pausePlay.update( 'play' );
-			// SYNC:
+			// SYNC
 			if ( slider.syncExists ) methods.sync( 'pause' );
 		};
-		// SLIDESHOW:
+		// SLIDESHOW
 		slider.play = function() {
 			if ( slider.playing ) clearInterval( slider.animatedSlides );
 			slider.animatedSlides = slider.animatedSlides || setInterval( slider.animateSlides, slider.vars.slideshowSpeed );
 			slider.started = slider.playing = true;
 			// PAUSEPLAY:
 			if ( slider.vars.pausePlay ) methods.pausePlay.update( 'pause' );
-			// SYNC:
+			// SYNC
 			if ( slider.syncExists ) methods.sync( 'play' );
 		};
 		// STOP:
@@ -778,7 +778,7 @@
 			slider.stopped = true;
 		};
 		slider.canAdvance = function( target, fromNav ) {
-			// ASNAV:
+			// ASNAV
 			var last = ( asNav ) ? slider.pagingCount - 1 : slider.last;
 			return ( fromNav ) ? true :
 				( asNav && slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
@@ -798,7 +798,7 @@
 			}
 		};
 
-		// SLIDE:
+		// SLIDE
 		slider.setProps = function( pos, special, dur ) {
 			var target = ( function() {
 				var posCheck = ( pos ) ? pos : ( ( slider.itemW + slider.vars.itemMargin ) * slider.move ) * slider.animatingTo,
@@ -832,7 +832,7 @@
 		};
 
 		slider.setup = function( type ) {
-			// SLIDE:
+			// SLIDE
 			if ( ! fade ) {
 				var sliderOffset, arr;
 
@@ -848,7 +848,7 @@
 						slider.container.empty().append( slider.slides );
 					}
 				}
-				// INFINITE LOOP && ! CAROUSEL:
+				// INFINITE LOOP && ! CAROUSEL
 				if ( slider.vars.animationLoop && ! carousel ) {
 					slider.cloneCount = 2;
 					slider.cloneOffset = 1;
@@ -859,7 +859,7 @@
 				slider.newSlides = $( slider.vars.selector, slider );
 
 				sliderOffset = ( reverse ) ? slider.count - 1 - slider.currentSlide + slider.cloneOffset : slider.currentSlide + slider.cloneOffset;
-				// VERTICAL:
+				// VERTICAL
 				if ( vertical && ! carousel ) {
 					slider.container.height( ( slider.count + slider.cloneCount ) * 200 + '%' ).css( 'position', 'absolute' ).width( '100%' );
 					setTimeout( function() {
@@ -874,11 +874,11 @@
 					setTimeout( function() {
 						slider.doMath();
 						slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
-						// SMOOTH HEIGHT:
+						// SMOOTH HEIGHT
 						if ( slider.vars.smoothHeight ) methods.smoothHeight();
 					}, ( type === 'init' ) ? 100 : 0 );
 				}
-			} else { // FADE:
+			} else { // FADE
 				slider.slides.css( {'width': '100%', 'float': 'left', 'marginRight': '-100%', 'position': 'relative'} );
 				if ( type === 'init' ) {
 					if ( ! touch ) {
@@ -887,10 +887,10 @@
 						slider.slides.css( { 'opacity': 0, 'display': 'block', 'webkitTransition': 'opacity ' + slider.vars.animationSpeed / 1000 + 's ease', 'zIndex': 1 } ).eq( slider.currentSlide ).css( { 'opacity': 1, 'zIndex': 2} );
 					}
 				}
-				// SMOOTH HEIGHT:
+				// SMOOTH HEIGHT
 				if ( slider.vars.smoothHeight ) methods.smoothHeight();
 			}
-			// ! CAROUSEL:
+			// ! CAROUSEL
 			// CANDIDATE: active slide
 			if ( ! carousel ) slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
 		};
@@ -985,27 +985,27 @@
 		slider.removeSlide = function( obj ) {
 			var pos = ( isNaN( obj ) ) ? slider.slides.index( $( obj ) ) : obj;
 
-			// Update count
+			// Update count.
 			slider.count -= 1;
 			slider.last = slider.count - 1;
 
-			// Remove slide
+			// Remove slide.
 			if ( isNaN( obj ) ) {
 				$( obj, slider.slides ).remove();
 			} else {
 				( vertical && reverse ) ? slider.slides.eq( slider.last ).remove() : slider.slides.eq( obj ).remove();
 			}
 
-			// Update currentSlide, animatingTo, controlNav, and directionNav
+			// Update currentSlide, animatingTo, controlNav, and directionNav.
 			slider.doMath();
 			slider.update( pos, 'remove' );
 
-			// Update slider.slides
+			// Update slider.slides.
 			slider.slides = $( slider.vars.selector + ':not(.clone )', slider );
-			// Re-setup the slider to accomdate new slide
+			// Re-setup the slider to accomdate new slide.
 			slider.setup();
 
-			// FlexSlider: removed() Callback
+			// FlexSlider: removed() Callback.
 			slider.vars.removed( slider );
 		};
 
