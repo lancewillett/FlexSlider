@@ -155,11 +155,6 @@
 					$( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
-
-				// API: start() Callback
-				setTimeout( function() {
-					slider.vars.start( slider );
-				}, 200 );
 			},
 			asNav: {
 				setup: function() {
@@ -621,8 +616,10 @@
 								else slider.pause(); // Or just pause
 							}
 							else {
-								if ( slider.started ) slider.play(); // Initiated before, just play
-								else ( slider.vars.initDelay > 0 ) ? setTimeout( slider.play, slider.vars.initDelay ) : slider.play(); // Didn't init before: simply init or wait for it
+								if ( slider.started )
+									slider.play(); // Initiated before, just play
+								else
+									( slider.vars.initDelay > 0 ) ? setTimeout( slider.play, slider.vars.initDelay ) : slider.play(); // Didn't init before: simply init or wait for it
 							}
 						} );
 					}
@@ -673,9 +670,6 @@
 				if ( pause )
 					slider.pause();
 
-				// API: before() animation Callback
-				slider.vars.before( slider );
-
 				// SYNC
 				if ( slider.syncExists && ! fromNav )
 					methods.sync( 'animate' );
@@ -698,8 +692,6 @@
 					methods.directionNav.update();
 
 				if ( target === slider.last ) {
-					// API: end() of cycle Callback
-					slider.vars.end( slider );
 					// SLIDESHOW && ! INFINITE LOOP:
 					if ( ! slider.vars.animationLoop )
 						slider.pause();
@@ -764,8 +756,6 @@
 			}
 			slider.animating = false;
 			slider.currentSlide = slider.animatingTo;
-			// API: after() animation Callback
-			slider.vars.after( slider );
 		};
 
 		// SLIDESHOW
@@ -1009,9 +999,6 @@
 			slider.slides = $( slider.vars.selector + ':not(.clone )', slider );
 			// Le-setup the slider to accomdate new slide
 			slider.setup();
-
-			// FeaturedSlider: added() Callback
-			slider.vars.added( slider );
 		};
 		slider.removeSlide = function( obj ) {
 			var pos = ( isNaN( obj ) ) ? slider.slides.index( $( obj ) ) : obj;
@@ -1035,9 +1022,6 @@
 			slider.slides = $( slider.vars.selector + ':not(.clone )', slider );
 			// Re-setup the slider to accomdate new slide.
 			slider.setup();
-
-			// FeaturedSlider: removed() Callback.
-			slider.vars.removed( slider );
 		};
 
 		// FeaturedSlider: Initialize
@@ -1104,14 +1088,6 @@
 		maxItems: 0,                    // {NEW} Integer: Maxmimum number of carousel items that should be visible. Items will resize fluidly when above this limit.
 		move: 0,                        // {NEW} Integer: Number of carousel items that should move on animation. If 0, slider will move all visible items.
 		allowOneSlide: true,            // {NEW} Boolean: Whether or not to allow a slider comprised of a single slide
-
-		// Callback API
-		start: function() {},            // Callback: function( slider ) - Fires when the slider loads the first slide
-		before: function() {},           // Callback: function( slider ) - Fires asynchronously with each slider animation
-		after: function() {},            // Callback: function( slider ) - Fires after each slider animation completes
-		end: function() {},              // Callback: function( slider ) - Fires when the slider reaches the last slide ( asynchronous )
-		added: function() {},            // {NEW} Callback: function( slider ) - Fires after a slide is added
-		removed: function() {}           // {NEW} Callback: function( slider ) - Fires after a slide is removed
 	};
 
 	// FeaturedSlider: Plugin Function
@@ -1127,7 +1103,8 @@
 
 			if ( ( $slides.length === 1 && options.allowOneSlide === true ) || $slides.length === 0 ) {
 					$slides.fadeIn( 400 );
-					if ( options.start ) options.start( $this );
+					if ( options.start )
+						options.start( $this );
 				} else if ( $this.data( 'featuredslider' ) === undefined ) {
 					new $.featuredslider( this, options );
 				}
