@@ -89,45 +89,12 @@
 				if ( slider.vars.directionNav )
 					methods.directionNav.setup();
 
-				// KEYBOARD
-				if ( slider.vars.keyboard && ( $( slider.containerSelector ).length === 1 || slider.vars.multipleKeyboard ) ) {
-					$( document ).bind( 'keyup', function( event ) {
-						var keycode = event.keyCode;
-						if ( ! slider.animating && ( keycode === 39 || keycode === 37 ) ) {
-							var target = ( keycode === 39 ) ? slider.getTarget( 'next' ) :
-								( keycode === 37 ) ? slider.getTarget( 'prev' ) : false;
-							slider.flexAnimate( target, slider.vars.pauseOnAction );
-						}
-					} );
-				}
-				// MOUSEWHEEL
-				if ( slider.vars.mousewheel ) {
-					slider.bind( 'mousewheel', function( event, delta, deltaX, deltaY ) {
-						event.preventDefault();
-						var target = ( delta < 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-						slider.flexAnimate( target, slider.vars.pauseOnAction );
-					} );
-				}
-
-				// PAUSEPLAY
-				if ( slider.vars.pausePlay )
-					methods.pausePlay.setup();
-
 				// PAUSE WHEN INVISIBLE
 				if ( slider.vars.slideshow && slider.vars.pauseInvisible )
 					methods.pauseInvisible.init();
 
 				// SLIDSESHOW
 				if ( slider.vars.slideshow ) {
-					if ( slider.vars.pauseOnHover ) {
-						slider.hover( function() {
-							if ( ! slider.manualPlay && ! slider.manualPause )	
-								slider.pause();
-						}, function() {
-							if ( ! slider.manualPause && ! slider.manualPlay && ! slider.stopped )
-								slider.play();
-						} );
-					}
 					// Initialize animation
 					//If we're visible, or we don't use PageVisibility API
 					if ( ! slider.vars.pauseInvisible || ! methods.pauseInvisible.isHidden() ) {
@@ -165,7 +132,7 @@
 								slider.flexAnimate( slider.getTarget( 'prev' ), true );
 							} else if ( ! $slide.hasClass( namespace + 'active-slide' ) ) {
 								slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-								slider.flexAnimate( target, slider.vars.pauseOnAction, false, true, true );
+								slider.flexAnimate( target, false, true, true );
 							}
 						} );
 					} else {
@@ -185,7 +152,7 @@
 									target = $slide.index();
 								if ( ! $slide.hasClass( 'active' ) ) {
 									slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-									slider.flexAnimate( target, slider.vars.pauseOnAction, false, true, true );
+									slider.flexAnimate( target, false, true, true );
 								}
 							} );
 						} );
@@ -232,7 +199,7 @@
 
 							if ( ! $this.hasClass( namespace + 'active' ) ) {
 								slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
-								slider.flexAnimate( target, slider.vars.pauseOnAction );
+								slider.flexAnimate( target );
 							}
 						}
 
@@ -283,7 +250,7 @@
 
 						if ( watchedEvent === '' || watchedEvent === event.type ) {
 							target = ( $( this ).hasClass( namespace + 'next' ) ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-							slider.flexAnimate( target, slider.vars.pauseOnAction );
+							slider.flexAnimate( target );
 						}
 
 						// Set up flags to prevent event duplication
@@ -308,47 +275,6 @@
 					} else {
 						slider.directionNav.removeClass( disabledClass ).removeAttr( 'tabindex' );
 					}
-				}
-			},
-			pausePlay: {
-				setup: function() {
-					var pausePlayScaffold = $( '<div class="' + namespace + 'pauseplay"><a></a></div>' );
-
-					// CONTROLSCONTAINER:
-					if ( slider.controlsContainer ) {
-						slider.controlsContainer.append( pausePlayScaffold );
-						slider.pausePlay = $( '.' + namespace + 'pauseplay a', slider.controlsContainer );
-					} else {
-						slider.append( pausePlayScaffold );
-						slider.pausePlay = $( '.' + namespace + 'pauseplay a', slider );
-					}
-
-					methods.pausePlay.update( ( slider.vars.slideshow ) ? namespace + 'pause' : namespace + 'play' );
-
-					slider.pausePlay.bind( eventType, function( event ) {
-						event.preventDefault();
-
-						if ( watchedEvent === '' || watchedEvent === event.type ) {
-							if ( $( this ).hasClass( namespace + 'pause' ) ) {
-								slider.manualPause = true;
-								slider.manualPlay = false;
-								slider.pause();
-							} else {
-								slider.manualPause = false;
-								slider.manualPlay = true;
-								slider.play();
-							}
-						}
-
-						// Set up flags to prevent event duplication
-						if ( watchedEvent === '' )
-							watchedEvent = event.type;
-
-						methods.setToClearWatchedEvent();
-					} );
-				},
-				update: function( state ) {
-					( state === 'play' ) ? slider.pausePlay.removeClass( namespace + 'pause' ).addClass( namespace + 'play' ).html( slider.vars.playText ) : slider.pausePlay.removeClass( namespace + 'play' ).addClass( namespace + 'pause' ).html( slider.vars.pauseText );
 				}
 			},
 			touch: function() {
@@ -421,9 +347,9 @@
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
-								slider.flexAnimate( target, slider.vars.pauseOnAction );
+								slider.flexAnimate( target );
 							} else {
-								if ( ! fade ) slider.flexAnimate( slider.currentSlide, slider.vars.pauseOnAction, true );
+								if ( ! fade ) slider.flexAnimate( slider.currentSlide, true );
 							}
 						}
 						el.removeEventListener( 'touchend', onTouchEnd, false );
@@ -503,9 +429,9 @@
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
-								slider.flexAnimate( target, slider.vars.pauseOnAction );
+								slider.flexAnimate( target );
 							} else {
-								if ( ! fade ) slider.flexAnimate( slider.currentSlide, slider.vars.pauseOnAction, true );
+								if ( ! fade ) slider.flexAnimate( slider.currentSlide, true );
 							}
 						}
 
@@ -539,37 +465,6 @@
 				if ( ! vertical || fade ) {
 					var $obj = ( fade ) ? slider : slider.viewport;
 					( dur ) ? $obj.animate( {'height': slider.slides.eq( slider.animatingTo ).height()}, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
-				}
-			},
-			pauseInvisible: {
-				visProp: null,
-				init: function() {
-					var prefixes = ['webkit','moz','ms','o'];
-
-					if ( 'hidden' in document )
-						return 'hidden';
-					for ( var i = 0; i < prefixes.length; i++ ) {
-						if ( ( prefixes[i] + 'Hidden' ) in document )
-						methods.pauseInvisible.visProp = prefixes[i] + 'Hidden';
-					}
-					if ( methods.pauseInvisible.visProp ) {
-						var evtname = methods.pauseInvisible.visProp.replace(/[H|h]idden/,'' ) + 'visibilitychange';
-						document.addEventListener( evtname, function() {
-							if ( methods.pauseInvisible.isHidden() ) {
-								if ( slider.startTimeout ) clearTimeout( slider.startTimeout ); // If clock is ticking, stop timer and prevent from starting while invisible
-								else slider.pause(); // Or just pause
-							}
-							else {
-								if ( slider.started )
-									slider.play(); // Initiated before, just play
-								else
-									( slider.vars.initDelay > 0 ) ? setTimeout( slider.play, slider.vars.initDelay ) : slider.play(); // Didn't init before: simply init or wait for it
-							}
-						} );
-					}
-				},
-				isHidden: function() {
-					return document[methods.pauseInvisible.visProp] || false;
 				}
 			},
 			setToClearWatchedEvent: function() {
@@ -683,9 +578,6 @@
 			clearInterval( slider.animatedSlides );
 			slider.animatedSlides = null;
 			slider.playing = false;
-			// PAUSEPLAY:
-			if ( slider.vars.pausePlay )
-				methods.pausePlay.update( 'play' );
 		};
 		// SLIDESHOW
 		slider.play = function() {
@@ -693,9 +585,6 @@
 				clearInterval( slider.animatedSlides );
 			slider.animatedSlides = slider.animatedSlides || setInterval( slider.animateSlides, slider.vars.slideshowSpeed );
 			slider.started = slider.playing = true;
-			// PAUSEPLAY:
-			if ( slider.vars.pausePlay )
-				methods.pausePlay.update( 'pause' );
 		};
 		// STOP:
 		slider.stop = function () {
@@ -932,9 +821,6 @@
 		thumbCaptions: false,           // Boolean: Whether or not to put captions on thumbnails when using the 'thumbnails' controlNav.
 
 		// Usability features
-		pauseOnAction: true,            // Boolean: Pause the slideshow when interacting with control elements, highly recommended.
-		pauseOnHover: false,            // Boolean: Pause the slideshow when hovering over slider, then resume when no longer hovering
-		pauseInvisible: true,   		// {NEW} Boolean: Pause the slideshow when tab is invisible, resume when visible. Provides better UX, lower CPU usage.
 		useCSS: true,                   // {NEW} Boolean: Slider will use CSS3 transitions if available
 		touch: true,                    // {NEW} Boolean: Allow touch swipe navigation of the slider on touch-enabled devices
 		video: false,                   // {NEW} Boolean: If using video in the slider, will prevent CSS3 3D Transforms to avoid graphical glitches
@@ -944,14 +830,6 @@
 		directionNav: true,             // Boolean: Create navigation for previous/next navigation? ( true/false )
 		prevText: 'Previous',           // String: Set the text for the 'previous' directionNav item
 		nextText: 'Next',               // String: Set the text for the 'next' directionNav item
-
-		// Secondary Navigation
-		keyboard: true,                 // Boolean: Allow slider navigating via keyboard left/right keys
-		multipleKeyboard: false,        // {NEW} Boolean: Allow keyboard navigation to affect multiple sliders. Default behavior cuts out keyboard navigation with more than one slider present.
-		mousewheel: false,              // {UPDATED} Boolean: Requires jquery.mousewheel.js (https://github.com/brandonaaron/jquery-mousewheel) - Allows slider navigating via mousewheel
-		pausePlay: false,               // Boolean: Create pause/play dynamic element
-		pauseText: 'Pause',             // String: Set the text for the 'pause' pausePlay item
-		playText: 'Play'               // String: Set the text for the 'play' pausePlay item
 	};
 
 	// FeaturedSlider: Plugin Function
