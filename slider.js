@@ -231,7 +231,6 @@
 
 					function onTouchMove( e ) {
 						// Local vars for X and Y points.
-
 						localX = e.touches[0].pageX;
 						localY = e.touches[0].pageY;
 
@@ -327,7 +326,7 @@
 
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
 							var updateDx = dx,
-								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
+							    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
 								slider.featureAnimate( target );
@@ -354,7 +353,7 @@
 			},
 			smoothHeight: function( dur ) {
 				var $obj = slider.viewport;
-				( dur ) ? $obj.animate( {'height': slider.slides.eq( slider.animatingTo ).height()}, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
+				( dur ) ? $obj.animate( { 'height': slider.slides.eq( slider.animatingTo ).height() }, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
 			},
 			setToClearWatchedEvent: function() {
 				clearTimeout( watchedEventClearTimer );
@@ -368,9 +367,6 @@
 		slider.featureAnimate = function( target, override ) {
 			if ( target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
-
-			if ( slider.pagingCount === 1 )
-				slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 
 			if ( ! slider.animating && ( slider.canAdvance( target ) || override ) && slider.is( ':visible' ) ) {
 				slider.animating = true;
@@ -417,6 +413,7 @@
 				methods.smoothHeight( slider.vars.animationSpeed );
 			}
 		};
+
 		slider.wrapup = function( dimension ) {
 			// SLIDE
 			if ( slider.currentSlide === 0 && slider.animatingTo === slider.last ) {
@@ -430,12 +427,11 @@
 
 		slider.canAdvance = function( target ) {
 			var last = slider.last;
-			return ( slider.currentItem === slider.count - 1 && target === 0 && slider.direction === 'prev' ) ? true :
-				( slider.currentItem === 0 && target === slider.pagingCount - 1 && slider.direction !== 'next' ) ? false :
+			return ( target === slider.currentSlide ) ? false :
 				( slider.atEnd && slider.currentSlide === 0 && target === last && slider.direction !== 'next' ) ? false :
-				( slider.atEnd && slider.currentSlide === last && target === 0 && slider.direction === 'next' ) ? false :
 				true;
 		};
+
 		slider.getTarget = function( dir ) {
 			slider.direction = dir;
 			if ( dir === 'next' ) {
@@ -458,12 +454,13 @@
 							default: return pos;
 						}
 					}() );
-				return ( posCalc * -1 ) + 'px';
-			}() );
+
+					return ( posCalc * -1 ) + 'px';
+				}() );
 
 			if ( slider.transitions ) {
-				target = 'translate3d( ' + target + ',0,0 )';
-				dur = ( dur !== undefined ) ? ( dur/1000 ) + 's' : '0s';
+				target = 'translate3d(' + target + ',0,0 )';
+				dur = ( dur !== undefined ) ? ( dur / 1000 ) + 's' : '0s';
 				slider.container.css( '-' + slider.pfx + '-transition-duration', dur );
 			}
 
@@ -477,7 +474,7 @@
 			var sliderOffset, arr;
 
 			if ( type === 'init' ) {
-				slider.viewport = $( '<div class="' + namespace + 'viewport"></div>' ).css( {'overflow': 'hidden', 'position': 'relative'} ).appendTo( slider ).append( slider.container );
+				slider.viewport = $( '<div class="' + namespace + 'viewport"></div>' ).css( { 'overflow': 'hidden', 'position': 'relative' } ).appendTo( slider ).append( slider.container );
 				slider.cloneCount = 0;
 				slider.cloneOffset = 0;
 			}
@@ -488,7 +485,6 @@
 				slider.container.find( '.clone' ).remove();
 
 			slider.container.append( slider.slides.first().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) ).prepend( slider.slides.last().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) );
-
 			slider.newSlides = $( slider.vars.selector, slider );
 
 			sliderOffset = slider.currentSlide + slider.cloneOffset;
@@ -496,7 +492,7 @@
 			slider.setProps( sliderOffset * slider.computedW, 'init' );
 			setTimeout( function() {
 				slider.doMath();
-				slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
+				slider.newSlides.css( { 'width': slider.computedW, 'float': 'left', 'display': 'block' } );
 				// SMOOTH HEIGHT
 				methods.smoothHeight();
 			}, ( type === 'init' ) ? 100 : 0 );
