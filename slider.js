@@ -19,8 +19,6 @@
 			eventType = 'click touchend MSPointerUp',
 			watchedEvent = '',
 			watchedEventClearTimer,
-			vertical = slider.vars.direction === 'vertical',
-			reverse = slider.vars.reverse,
 			methods = {},
 			focused = true;
 
@@ -41,7 +39,7 @@
 				slider.slides = $( slider.vars.selector, slider );
 				slider.container = $( slider.containerSelector, slider );
 				slider.count = slider.slides.length;
-				slider.prop = ( vertical ) ? 'top' : 'marginLeft';
+				slider.prop = 'marginLeft';
 				slider.args = {};
 				// SLIDESHOW
 				slider.manualPause = false;
@@ -285,12 +283,10 @@
 							localX = e.touches[0].pageX;
 							localY = e.touches[0].pageY;
 
-							offset = ( reverse && slider.animatingTo === slider.last ) ? 0 :
-									 ( reverse ) ? slider.limit - ( slider.itemW * slider.animatingTo ) :
-									 ( slider.currentSlide === slider.last ) ? slider.limit :
-									 ( reverse ) ? ( slider.last - slider.currentSlide + slider.cloneOffset ) * cwidth : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
-							startX = ( vertical ) ? localY : localX;
-							startY = ( vertical ) ? localX : localY;
+							offset = ( slider.animatingTo === slider.last ) ? 0 :
+									 ( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
+							startX = localX;
+							startY = localY;
 
 							el.addEventListener( 'touchmove', onTouchMove, false );
 							el.addEventListener( 'touchend', onTouchEnd, false );
@@ -303,8 +299,8 @@
 						localX = e.touches[0].pageX;
 						localY = e.touches[0].pageY;
 
-						dx = ( vertical ) ? startX - localY : startX - localX;
-						scrolling = ( vertical ) ? ( Math.abs( dx ) < Math.abs( localX - startY ) ) : ( Math.abs( dx ) < Math.abs( localY - startY ) );
+						dx = startX - localX;
+						scrolling = Math.abs( dx ) < Math.abs( localY - startY );
 
 						var fxms = 500;
 
@@ -321,7 +317,7 @@
 						el.removeEventListener( 'touchmove', onTouchMove, false );
 
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
-							var updateDx = ( reverse ) ? -dx : dx,
+							var updateDx = dx,
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
@@ -352,12 +348,10 @@
 							slider.pause();
 							el._gesture.addPointer( e.pointerId );
 							accDx = 0;
-							cwidth = ( vertical ) ? slider.h : slider.w;
+							cwidth = slider.w;
 							startT = Number( new Date() );
-							offset = ( reverse && slider.animatingTo === slider.last ) ? 0 :
-									( reverse ) ? slider.limit - ( slider.itemW * slider.animatingTo ) :
-									( slider.currentSlide === slider.last ) ? slider.limit :
-									( reverse ) ? ( slider.last - slider.currentSlide + slider.cloneOffset ) * cwidth : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
+							offset = ( slider.animatingTo === slider.last ) ? 0 :
+									( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
 						}
 					}
 
@@ -371,9 +365,9 @@
 							transY = -e.translationY;
 
 						// Accumulate translations.
-						accDx = accDx + ( ( vertical ) ? transY : transX );
+						accDx = accDx + transX;
 						dx = accDx;
-						scrolling = ( vertical ) ? ( Math.abs( accDx ) < Math.abs( -transX ) ) : ( Math.abs( accDx ) < Math.abs( -transY ) );
+						scrolling = Math.abs( accDx ) < Math.abs( -transY );
 
 						if ( e.detail === e.MSGESTURE_FLAG_INERTIA ) {
 							setImmediate( function () {
@@ -398,7 +392,7 @@
 							return;
 
 						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
-							var updateDx = ( reverse ) ? -dx : dx,
+							var updateDx = dx,
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							if ( slider.canAdvance( target ) && ( Number( new Date() ) - startT < 550 && Math.abs( updateDx ) > 50 || Math.abs( updateDx ) > cwidth / 2 ) ) {
@@ -418,22 +412,15 @@
 				if ( ! slider.animating && slider.is( ':visible' ) ) {
 					slider.doMath();
 
-					if ( vertical ) { // VERTICAL
-						slider.viewport.height( slider.h );
-						slider.setProps( slider.h, 'setTotal' );
-					} else {
-						// SMOOTH HEIGHT
-						if ( slider.vars.smoothHeight ) methods.smoothHeight();
-						slider.newSlides.width( slider.computedW );
-						slider.setProps( slider.computedW, 'setTotal' );
-					}
+					// SMOOTH HEIGHT
+					if ( slider.vars.smoothHeight ) methods.smoothHeight();
+					slider.newSlides.width( slider.computedW );
+					slider.setProps( slider.computedW, 'setTotal' );
 				}
 			},
 			smoothHeight: function( dur ) {
-				if ( ! vertical ) {
-					var $obj = slider.viewport;
-					( dur ) ? $obj.animate( {'height': slider.slides.eq( slider.animatingTo ).height()}, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
-				}
+				var $obj = slider.viewport;
+				( dur ) ? $obj.animate( {'height': slider.slides.eq( slider.animatingTo ).height()}, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
 			},
 			setToClearWatchedEvent: function() {
 				clearTimeout( watchedEventClearTimer );
@@ -475,16 +462,15 @@
 				}
 
 				// SLIDE
-				var dimension = ( vertical ) ? slider.slides.filter( ':first' ).height() : slider.computedW,
+				var dimension = slider.computedW,
 					margin, slideString, calcNext;
 
-				// REVERSE:
 				if ( slider.currentSlide === 0 && target === slider.count - 1 && slider.direction !== 'next' ) {
-					slideString = ( reverse ) ? ( slider.count + slider.cloneOffset ) * dimension : 0;
+					slideString = 0;
 				} else if ( slider.currentSlide === slider.last && target === 0 && slider.direction !== 'prev' ) {
-					slideString = ( reverse ) ? 0 : ( slider.count + 1 ) * dimension;
+					slideString = ( slider.count + 1 ) * dimension;
 				} else {
-					slideString = ( reverse ) ? ( ( slider.count - 1 ) - target + slider.cloneOffset ) * dimension : ( target + slider.cloneOffset ) * dimension;
+					slideString = ( target + slider.cloneOffset ) * dimension;
 				}
 				slider.setProps( slideString, '', slider.vars.animationSpeed );
 				if ( slider.transitions ) {
@@ -567,10 +553,10 @@
 				var posCheck = ( pos ) ? pos : slider.itemW * slider.animatingTo,
 					posCalc = ( function() {
 						switch ( special ) {
-							case 'setTotal': return ( reverse ) ? ( ( slider.count - 1 ) - slider.currentSlide + slider.cloneOffset ) * pos : ( slider.currentSlide + slider.cloneOffset ) * pos;
-							case 'setTouch': return ( reverse ) ? pos : pos;
-							case 'jumpEnd': return ( reverse ) ? pos : slider.count * pos;
-							case 'jumpStart': return ( reverse ) ? slider.count * pos : pos;
+							case 'setTotal': return ( slider.currentSlide + slider.cloneOffset ) * pos;
+							case 'setTouch': return pos;
+							case 'jumpEnd': return slider.count * pos;
+							case 'jumpStart': return pos;
 							default: return pos;
 						}
 					}() );
@@ -578,7 +564,7 @@
 			}() );
 
 			if ( slider.transitions ) {
-				target = ( vertical ) ? 'translate3d( 0,' + target + ',0 )' : 'translate3d( ' + target + ',0,0 )';
+				target = 'translate3d( ' + target + ',0,0 )';
 				dur = ( dur !== undefined ) ? ( dur/1000 ) + 's' : '0s';
 				slider.container.css( '-' + slider.pfx + '-transition-duration', dur );
 			}
@@ -596,12 +582,6 @@
 				slider.viewport = $( '<div class="' + namespace + 'viewport"></div>' ).css( {'overflow': 'hidden', 'position': 'relative'} ).appendTo( slider ).append( slider.container );
 				slider.cloneCount = 0;
 				slider.cloneOffset = 0;
-				// REVERSE:
-				if ( reverse ) {
-					arr = $.makeArray( slider.slides ).reverse();
-					slider.slides = $( arr );
-					slider.container.empty().append( slider.slides );
-				}
 			}
 			slider.cloneCount = 2;
 			slider.cloneOffset = 1;
@@ -613,27 +593,16 @@
 
 			slider.newSlides = $( slider.vars.selector, slider );
 
-			sliderOffset = ( reverse ) ? slider.count - 1 - slider.currentSlide + slider.cloneOffset : slider.currentSlide + slider.cloneOffset;
-			// VERTICAL
-			if ( vertical ) {
-				slider.container.height( ( slider.count + slider.cloneCount ) * 200 + '%' ).css( 'position', 'absolute' ).width( '100%' );
-				setTimeout( function() {
-					slider.newSlides.css( {'display': 'block'} );
-					slider.doMath();
-					slider.viewport.height( slider.h );
-					slider.setProps( sliderOffset * slider.h, 'init' );
-				}, ( type === 'init' ) ? 100 : 0 );
-			} else {
-				slider.container.width( ( slider.count + slider.cloneCount ) * 200 + '%' );
-				slider.setProps( sliderOffset * slider.computedW, 'init' );
-				setTimeout( function() {
-					slider.doMath();
-					slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
-					// SMOOTH HEIGHT
-					if ( slider.vars.smoothHeight )
-						methods.smoothHeight();
-				}, ( type === 'init' ) ? 100 : 0 );
-			}
+			sliderOffset = slider.currentSlide + slider.cloneOffset;
+			slider.container.width( ( slider.count + slider.cloneCount ) * 200 + '%' );
+			slider.setProps( sliderOffset * slider.computedW, 'init' );
+			setTimeout( function() {
+				slider.doMath();
+				slider.newSlides.css( {'width': slider.computedW, 'float': 'left', 'display': 'block'} );
+				// SMOOTH HEIGHT
+				if ( slider.vars.smoothHeight )
+					methods.smoothHeight();
+			}, ( type === 'init' ) ? 100 : 0 );
 
 			slider.slides.removeClass( namespace + 'active-slide' ).eq( slider.currentSlide ).addClass( namespace + 'active-slide' );
 		};
@@ -683,11 +652,10 @@
 			slider.last = slider.count - 1;
 
 			// Append new slide
-			if ( vertical && reverse ) {
-				( pos !== undefined ) ? slider.slides.eq( slider.count - pos ).after( $obj ) : slider.container.prepend( $obj );
-			} else {
-				( pos !== undefined ) ? slider.slides.eq( pos ).before( $obj ) : slider.container.append( $obj );
-			}
+			if ( pos !== undefined )
+				slider.slides.eq( pos ).before( $obj );
+			else
+				slider.container.append( $obj );
 
 			// Update currentSlide, animatingTo, controlNav, and directionNav.
 			slider.update( pos, 'add' );
@@ -708,7 +676,7 @@
 			if ( isNaN( obj ) ) {
 				$( obj, slider.slides ).remove();
 			} else {
-				( vertical && reverse ) ? slider.slides.eq( slider.last ).remove() : slider.slides.eq( obj ).remove();
+				slider.slides.eq( obj ).remove();
 			}
 
 			// Update currentSlide, animatingTo, controlNav, and directionNav.
