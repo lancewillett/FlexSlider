@@ -86,8 +86,7 @@
 					methods.controlNav.setup();
 
 				// DIRECTIONNAV
-				if ( slider.vars.directionNav )
-					methods.directionNav.setup();
+				methods.directionNav.setup();
 
 				// PAUSE WHEN INVISIBLE
 				if ( slider.vars.slideshow && slider.vars.pauseInvisible )
@@ -502,8 +501,7 @@
 				slider.atEnd = target === 0 || target === slider.last;
 
 				// DIRECTIONNAV
-				if ( slider.vars.directionNav )
-					methods.directionNav.update();
+				methods.directionNav.update();
 
 				if ( target === slider.last ) {
 					// SLIDESHOW && ! INFINITE LOOP:
@@ -741,8 +739,7 @@
 				}
 			}
 			// Update directionNav
-			if ( slider.vars.directionNav )
-				methods.directionNav.update();
+			methods.directionNav.update();
 		};
 
 		slider.addSlide = function( obj, pos ) {
@@ -827,9 +824,8 @@
 
 		// Primary Controls
 		controlNav: true,               // Boolean: Create navigation for paging control of each slide? Note: Leave true for manualControls usage
-		directionNav: true,             // Boolean: Create navigation for previous/next navigation? ( true/false )
 		prevText: 'Previous',           // String: Set the text for the 'previous' directionNav item
-		nextText: 'Next',               // String: Set the text for the 'next' directionNav item
+		nextText: 'Next'               // String: Set the text for the 'next' directionNav item
 	};
 
 	// FeaturedSlider: Plugin Function
