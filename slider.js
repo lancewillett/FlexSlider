@@ -53,8 +53,8 @@
 				// PAUSE WHEN INVISIBLE
 				slider.started = false;
 				slider.startTimeout = null;
-				// TOUCH/USECSS
-				slider.transitions = ! slider.vars.video && ! fade && slider.vars.useCSS && ( function() {
+				// TOUCH
+				slider.transitions = ! slider.vars.video && ! fade && ( function() {
 					var obj = document.createElement( 'div' ),
 						props = ['perspectiveProperty', 'WebkitPerspective', 'MozPerspective', 'OPerspective', 'msPerspective'];
 					for ( var i in props ) {
@@ -810,7 +810,6 @@
 		thumbCaptions: false,           // Boolean: Whether or not to put captions on thumbnails when using the 'thumbnails' controlNav.
 
 		// Usability features
-		useCSS: true,                   // {NEW} Boolean: Slider will use CSS3 transitions if available
 		touch: true,                    // {NEW} Boolean: Allow touch swipe navigation of the slider on touch-enabled devices
 		video: false,                   // {NEW} Boolean: If using video in the slider, will prevent CSS3 3D Transforms to avoid graphical glitches
 
