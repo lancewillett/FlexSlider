@@ -22,7 +22,6 @@
 			vertical = slider.vars.direction === 'vertical',
 			reverse = slider.vars.reverse,
 			fade = slider.vars.animation === 'fade',
-			asNav = slider.vars.asNavFor !== '',
 			methods = {},
 			focused = true;
 
@@ -43,8 +42,6 @@
 				slider.slides = $( slider.vars.selector, slider );
 				slider.container = $( slider.containerSelector, slider );
 				slider.count = slider.slides.length;
-				// SYNC
-				slider.syncExists = $( slider.vars.sync ).length > 0;
 				// SLIDE
 				if ( slider.vars.animation === 'slide' )
 					slider.vars.animation = 'swing';
@@ -72,9 +69,6 @@
 				// CONTROLSCONTAINER
 				if ( slider.vars.controlsContainer !== '' )
 					slider.controlsContainer = $( slider.vars.controlsContainer ).length > 0 && $( slider.vars.controlsContainer );
-				// MANUAL
-				if ( slider.vars.manualControls !== '' )
-					slider.manualControls = $( slider.vars.manualControls ).length > 0 && $( slider.vars.manualControls );
 
 				// RANDOMIZE
 				if ( slider.vars.randomize ) {
@@ -169,7 +163,7 @@
 							var posFromLeft = $slide.offset().left - $( slider ).scrollLeft(); // Find position of slide relative to left of slider container
 							if ( posFromLeft <= 0 && $slide.hasClass( namespace + 'active-slide' ) ) {
 								slider.flexAnimate( slider.getTarget( 'prev' ), true );
-							} else if ( ! $( slider.vars.asNavFor ).data( 'featuredslider' ).animating && ! $slide.hasClass( namespace + 'active-slide' ) ) {
+							} else if ( ! $slide.hasClass( namespace + 'active-slide' ) ) {
 								slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 								slider.flexAnimate( target, slider.vars.pauseOnAction, false, true, true );
 							}
@@ -189,7 +183,7 @@
 								e.preventDefault();
 								var $slide = $( this ),
 									target = $slide.index();
-								if ( ! $( slider.vars.asNavFor ).data( 'featuredslider' ).animating && ! $slide.hasClass( 'active' ) ) {
+								if ( ! $slide.hasClass( 'active' ) ) {
 									slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 									slider.flexAnimate( target, slider.vars.pauseOnAction, false, true, true );
 								}
@@ -200,11 +194,7 @@
 			},
 			controlNav: {
 				setup: function() {
-					if ( ! slider.manualControls ) {
-						methods.controlNav.setupPaging();
-					} else { // MANUALCONTROLS:
-						methods.controlNav.setupManual();
-					}
+					methods.controlNav.setupPaging();
 				},
 				setupPaging: function() {
 					var type = ( slider.vars.controlNav === 'thumbnails' ) ? 'control-thumbs' : 'control-paging',
@@ -242,30 +232,6 @@
 
 							if ( ! $this.hasClass( namespace + 'active' ) ) {
 								slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
-								slider.flexAnimate( target, slider.vars.pauseOnAction );
-							}
-						}
-
-						// Set up flags to prevent event duplication
-						if ( watchedEvent === '' )
-							watchedEvent = event.type;
-
-						methods.setToClearWatchedEvent();
-					} );
-				},
-				setupManual: function() {
-					slider.controlNav = slider.manualControls;
-					methods.controlNav.active();
-
-					slider.controlNav.bind( eventType, function( event ) {
-						event.preventDefault();
-
-						if ( watchedEvent === '' || watchedEvent === event.type ) {
-							var $this = $( this ),
-								target = slider.controlNav.index( $this );
-
-							if ( ! $this.hasClass( namespace + 'active' ) ) {
-								( target > slider.currentSlide ) ? slider.direction = 'next' : slider.direction = 'prev';
 								slider.flexAnimate( target, slider.vars.pauseOnAction );
 							}
 						}
@@ -575,16 +541,6 @@
 					( dur ) ? $obj.animate( {'height': slider.slides.eq( slider.animatingTo ).height()}, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
 				}
 			},
-			sync: function( action ) {
-				var $obj = $( slider.vars.sync ).data( 'featuredslider' ),
-					target = slider.animatingTo;
-
-				switch ( action ) {
-					case 'animate': $obj.flexAnimate( target, slider.vars.pauseOnAction, false, true ); break;
-					case 'play': if ( ! $obj.playing && ! $obj.asNav ) { $obj.play(); } break;
-					case 'pause': $obj.pause(); break;
-				}
-			},
 			pauseInvisible: {
 				visProp: null,
 				init: function() {
@@ -625,7 +581,7 @@
 		};
 
 		// Public methods
-		slider.flexAnimate = function( target, pause, override, withSync, fromNav ) {
+		slider.flexAnimate = function( target, pause, override, fromNav ) {
 			if ( ! slider.vars.animationLoop && target !== slider.currentSlide )
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
 
@@ -633,34 +589,12 @@
 				slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
 
 			if ( ! slider.animating && ( slider.canAdvance( target, fromNav ) || override ) && slider.is( ':visible' ) ) {
-				if ( asNav && withSync ) {
-					var master = $( slider.vars.asNavFor ).data( 'featuredslider' );
-					slider.atEnd = target === 0 || target === slider.count - 1;
-					master.flexAnimate( target, true, false, true, fromNav );
-					slider.direction = ( slider.currentItem < target ) ? 'next' : 'prev';
-					master.direction = slider.direction;
-
-					if ( Math.ceil( ( target + 1 )/slider.visible ) - 1 !== slider.currentSlide && target !== 0 ) {
-						slider.currentItem = target;
-						slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
-						target = Math.floor( target/slider.visible );
-					} else {
-						slider.currentItem = target;
-						slider.slides.removeClass( namespace + 'active-slide' ).eq( target ).addClass( namespace + 'active-slide' );
-						return false;
-					}
-				}
-
 				slider.animating = true;
 				slider.animatingTo = target;
 
 				// SLIDESHOW
 				if ( pause )
 					slider.pause();
-
-				// SYNC
-				if ( slider.syncExists && ! fromNav )
-					methods.sync( 'animate' );
 
 				// CONTROLNAV
 				if ( slider.vars.controlNav )
@@ -752,9 +686,6 @@
 			// PAUSEPLAY:
 			if ( slider.vars.pausePlay )
 				methods.pausePlay.update( 'play' );
-			// SYNC
-			if ( slider.syncExists )
-				methods.sync( 'pause' );
 		};
 		// SLIDESHOW
 		slider.play = function() {
@@ -765,9 +696,6 @@
 			// PAUSEPLAY:
 			if ( slider.vars.pausePlay )
 				methods.pausePlay.update( 'pause' );
-			// SYNC
-			if ( slider.syncExists )
-				methods.sync( 'play' );
 		};
 		// STOP:
 		slider.stop = function () {
@@ -912,7 +840,7 @@
 			slider.animatingTo = slider.currentSlide;
 
 			// Update controlNav
-			if ( slider.vars.controlNav && ! slider.manualControls ) {
+			if ( slider.vars.controlNav ) {
 				if ( ( action === 'add' ) || slider.pagingCount > slider.controlNav.length ) {
 					methods.controlNav.update( 'add' );
 				} else if ( action === 'remove' || slider.pagingCount < slider.controlNav.length ) {
@@ -988,6 +916,7 @@
 	$.featuredslider.defaults = {
 		namespace: 'flex-',             // {NEW} String: Prefix string attached to the class of every element generated by the plugin
 		selector: '.slides > li',       // {NEW} Selector: Must match a simple pattern. '{container} > {slide}' -- Ignore pattern at your own peril
+		controlsContainer: '',          // {UPDATED} jQuery Object/Selector: Declare which container the navigation elements should be appended too. Default container is the FeaturedSlider element. Example use would be $( '.featuredslider-container' ). Property is ignored if given element is not found.
 		animation: 'fade',              // String: Select your animation type, 'fade' or 'slide'
 		easing: 'swing',                // {NEW} String: Determines the easing method used in jQuery transitions. jQuery easing plugin is supported!
 		direction: 'horizontal',        // String: Select the sliding direction, 'horizontal' or 'vertical'
@@ -1011,7 +940,7 @@
 		video: false,                   // {NEW} Boolean: If using video in the slider, will prevent CSS3 3D Transforms to avoid graphical glitches
 
 		// Primary Controls
-		controlNav: true,               // Boolean: Create navigation for paging control of each clide? Note: Leave true for manualControls usage
+		controlNav: true,               // Boolean: Create navigation for paging control of each slide? Note: Leave true for manualControls usage
 		directionNav: true,             // Boolean: Create navigation for previous/next navigation? ( true/false )
 		prevText: 'Previous',           // String: Set the text for the 'previous' directionNav item
 		nextText: 'Next',               // String: Set the text for the 'next' directionNav item
@@ -1022,13 +951,7 @@
 		mousewheel: false,              // {UPDATED} Boolean: Requires jquery.mousewheel.js (https://github.com/brandonaaron/jquery-mousewheel) - Allows slider navigating via mousewheel
 		pausePlay: false,               // Boolean: Create pause/play dynamic element
 		pauseText: 'Pause',             // String: Set the text for the 'pause' pausePlay item
-		playText: 'Play',               // String: Set the text for the 'play' pausePlay item
-
-		// Special properties
-		controlsContainer: '',          // {UPDATED} jQuery Object/Selector: Declare which container the navigation elements should be appended too. Default container is the FeaturedSlider element. Example use would be $( '.featuredslider-container' ). Property is ignored if given element is not found.
-		manualControls: '',             // {UPDATED} jQuery Object/Selector: Declare custom control navigation. Examples would be $( '.flex-control-nav li' ) or '#tabs-nav li img', etc. The number of elements in your controlNav should match the number of slides/tabs.
-		sync: '',                       // {NEW} Selector: Mirror the actions performed on this slider with another slider. Use with care.
-		asNavFor: '',                   // {NEW} Selector: Internal property exposed for turning the slider into a thumbnail navigation for another slider
+		playText: 'Play'               // String: Set the text for the 'play' pausePlay item
 	};
 
 	// FeaturedSlider: Plugin Function
