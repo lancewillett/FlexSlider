@@ -81,7 +81,6 @@
 				if ( touch )
 					methods.touch();
 
-				// SLIDE
 				$( window ).bind( 'resize orientationchange focus', methods.resize );
 
 				slider.find( 'img' ).attr( 'draggable', 'false' );
@@ -153,6 +152,7 @@
 					( slider.pagingCount > 1 && slider.pagingCount !== slider.controlNav.length ) ? slider.update( pos, action ) : methods.controlNav.active();
 				}
 			},
+
 			directionNav: {
 				setup: function() {
 					var directionNavScaffold = $( '<ul class="' + namespace + 'direction-nav"><li><a class="' + namespace + 'prev" href="#">' + slider.vars.prevText + '</a></li><li><a class="' + namespace + 'next" href="#">' + slider.vars.nextText + '</a></li></ul>' );
@@ -193,6 +193,7 @@
 					}
 				}
 			},
+
 			touch: function() {
 				var startX,
 					startY,
@@ -337,6 +338,7 @@
 					}
 				}
 			},
+
 			resize: function() {
 				if ( ! slider.animating && slider.is( ':visible' ) ) {
 					slider.doMath();
@@ -347,10 +349,12 @@
 					slider.setProps( slider.computedW, 'setTotal' );
 				}
 			},
+
 			smoothHeight: function( dur ) {
 				var $obj = slider.viewport;
 				( dur ) ? $obj.animate( { 'height': slider.slides.eq( slider.animatingTo ).height() }, dur ) : $obj.height( slider.slides.eq( slider.animatingTo ).height() );
 			},
+
 			setToClearWatchedEvent: function() {
 				clearTimeout( watchedEventClearTimer );
 				watchedEventClearTimer = setTimeout( function() {
@@ -378,7 +382,6 @@
 				// DIRECTIONNAV
 				methods.directionNav.update();
 
-				// SLIDE
 				var dimension = slider.computedW,
 					margin, slideString, calcNext;
 
@@ -411,7 +414,6 @@
 		};
 
 		slider.wrapup = function( dimension ) {
-			// SLIDE
 			if ( slider.currentSlide === 0 && slider.animatingTo === slider.last ) {
 				slider.setProps( dimension, 'jumpEnd' );
 			} else if ( slider.currentSlide === slider.last && slider.animatingTo === 0 ) {
@@ -430,7 +432,6 @@
 			}
 		};
 
-		// SLIDE
 		slider.setProps = function( pos, special, dur ) {
 			var target = ( function() {
 				var posCheck = ( pos ) ? pos : slider.itemW * slider.animatingTo,
@@ -459,7 +460,6 @@
 		};
 
 		slider.setup = function( type ) {
-			// SLIDE
 			var sliderOffset, arr;
 
 			if ( type === 'init' ) {
