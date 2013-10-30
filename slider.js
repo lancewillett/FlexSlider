@@ -15,7 +15,7 @@
 
 		var namespace = slider.vars.namespace,
 			msGesture = window.navigator && window.navigator.msPointerEnabled && window.MSGesture,
-			touch = ( ( 'ontouchstart' in window ) || msGesture || window.DocumentTouch && document instanceof DocumentTouch ),
+			touch = ( ( 'ontouchstart' in window ) || msGesture || window.DocumentTouch && document instanceof DocumentTouch ), // MSFT specific.
 			eventType = 'click touchend MSPointerUp',
 			watchedEvent = '',
 			watchedEventClearTimer,
@@ -271,7 +271,7 @@
 					}
 				} else {
 					el.style.msTouchAction = 'none';
-					el._gesture = new MSGesture();
+					el._gesture = new MSGesture(); // MSFT specific.
 					el._gesture.target = el;
 					el.addEventListener( 'MSPointerDown', onMSPointerDown, false );
 					el._slider = slider;
@@ -307,7 +307,7 @@
 						scrolling = Math.abs( accDx ) < Math.abs( -transY );
 
 						if ( e.detail === e.MSGESTURE_FLAG_INERTIA ) {
-							setImmediate( function () {
+							setImmediate( function () {  // MSFT specific.
 								el._gesture.stop();
 							} );
 
