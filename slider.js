@@ -52,8 +52,9 @@
 					return false;
 				}() );
 				// CONTROLSCONTAINER
-				if ( slider.vars.controlsContainer !== '' )
+				if ( slider.vars.controlsContainer !== '' ) {
 					slider.controlsContainer = $( slider.vars.controlsContainer ).length > 0 && $( slider.vars.controlsContainer );
+				}
 
 				slider.doMath();
 
@@ -78,8 +79,9 @@
 				}
 
 				// TOUCH
-				if ( touch )
+				if ( touch ) {
 					methods.touch();
+				}
 
 				$( window ).bind( 'resize orientationchange focus', methods.resize );
 
@@ -127,8 +129,9 @@
 						}
 
 						// Set up flags to prevent event duplication.
-						if ( watchedEvent === '' )
+						if ( watchedEvent === '' ) {
 							watchedEvent = event.type;
+						}
 
 						methods.setToClearWatchedEvent();
 					} );
@@ -178,8 +181,9 @@
 						}
 
 						// Set up flags to prevent event duplication.
-						if ( watchedEvent === '' )
+						if ( watchedEvent === '' ) {
 							watchedEvent = event.type;
+						}
 
 						methods.setToClearWatchedEvent();
 					} );
@@ -252,10 +256,10 @@
 						// Finish the touch by undoing the touch session.
 						el.removeEventListener( 'touchmove', onTouchMove, false );
 
-						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
+						if ( slider.animatingTo === slider.currentSlide && ! scrolling && dx !== null ) {
 							var updateDx = dx,
 								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-							
+
 							slider.featureAnimate( target );
 						}
 						el.removeEventListener( 'touchend', onTouchEnd, false );
@@ -290,8 +294,9 @@
 					function onMSGestureChange( e ) {
 						e.stopPropagation();
 						var slider = e.target._slider;
-						if ( ! slider )
+						if ( ! slider ) {
 							return;
+						}
 
 						var transX = -e.translationX,
 							transY = -e.translationY;
@@ -320,12 +325,13 @@
 					function onMSGestureEnd( e ) {
 						e.stopPropagation();
 						var slider = e.target._slider;
-						if ( ! slider )
+						if ( ! slider ) {
 							return;
+						}
 
-						if ( slider.animatingTo === slider.currentSlide && ! scrolling && ! ( dx === null ) ) {
+						if ( slider.animatingTo === slider.currentSlide && ! scrolling && dx !== null ) {
 							var updateDx = dx,
-							    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );							
+							    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
 							slider.featureAnimate( target );
 						}
@@ -365,8 +371,9 @@
 
 		// Public methods.
 		slider.featureAnimate = function( target ) {
-			if ( target !== slider.currentSlide )
+			if ( target !== slider.currentSlide ) {
 				slider.direction = ( target > slider.currentSlide ) ? 'next' : 'prev';
+			}
 
 			if ( ! slider.animating && slider.is( ':visible' ) ) {
 				slider.animating = true;
@@ -455,8 +462,9 @@
 			}
 
 			slider.args[slider.prop] = target;
-			if ( slider.transitions || dur === undefined )
+			if ( slider.transitions || dur === undefined ) {
 				slider.container.css( slider.args );
+			}
 		};
 
 		slider.setup = function( type ) {
@@ -470,8 +478,9 @@
 			slider.cloneCount = 2;
 			slider.cloneOffset = 1;
 			// Clear out old clones.
-			if ( type !== 'init' )
+			if ( type !== 'init' ) {
 				slider.container.find( '.clone' ).remove();
+			}
 
 			slider.container.append( slider.slides.first().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) ).prepend( slider.slides.last().clone().addClass( 'clone' ).attr( 'aria-hidden', 'true' ) );
 			slider.newSlides = $( slider.vars.selector, slider );
@@ -552,8 +561,9 @@
 
 	// FeaturedSlider: plugin function.
 	$.fn.featuredslider = function( options ) {
-		if ( options === undefined )
+		if ( options === undefined ) {
 			options = {};
+		}
 
 		if ( typeof options === 'object' ) {
 			return this.each( function() {
