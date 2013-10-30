@@ -211,63 +211,6 @@
 
 				if ( ! msGesture ) {
 					el.addEventListener( 'touchstart', onTouchStart, false );
-
-					function onTouchStart( e ) {
-						if ( slider.animating ) {
-							e.preventDefault();
-						} else if ( ( window.navigator.msPointerEnabled ) || e.touches.length === 1 ) {
-							cwidth = slider.w;
-							startT = Number( new Date() );
-
-							// Local vars for X and Y points.
-							localX = e.touches[0].pageX;
-							localY = e.touches[0].pageY;
-
-							offset = ( slider.animatingTo === slider.last ) ? 0 :
-									 ( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
-							startX = localX;
-							startY = localY;
-
-							el.addEventListener( 'touchmove', onTouchMove, false );
-							el.addEventListener( 'touchend', onTouchEnd, false );
-						}
-					}
-
-					function onTouchMove( e ) {
-						// Local vars for X and Y points.
-						localX = e.touches[0].pageX;
-						localY = e.touches[0].pageY;
-
-						dx = startX - localX;
-						scrolling = Math.abs( dx ) < Math.abs( localY - startY );
-
-						var fxms = 500;
-
-						if ( ! scrolling || Number( new Date() ) - startT > fxms ) {
-							e.preventDefault();
-							if ( slider.transitions ) {
-								slider.setProps( offset + dx, 'setTouch' );
-							}
-						}
-					}
-
-					function onTouchEnd() {
-						// Finish the touch by undoing the touch session.
-						el.removeEventListener( 'touchmove', onTouchMove, false );
-
-						if ( slider.animatingTo === slider.currentSlide && ! scrolling && dx !== null ) {
-							var updateDx = dx,
-								target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-
-							slider.featureAnimate( target );
-						}
-						el.removeEventListener( 'touchend', onTouchEnd, false );
-
-						startX = null;
-						startY = null;
-						dx = null;
-						offset = null;
-					}
 				} else {
 					el.style.msTouchAction = 'none';
 					el._gesture = new MSGesture(); // MSFT specific.
@@ -276,71 +219,128 @@
 					el._slider = slider;
 					el.addEventListener( 'MSGestureChange', onMSGestureChange, false );
 					el.addEventListener( 'MSGestureEnd', onMSGestureEnd, false );
+				}
 
-					function onMSPointerDown( e ) {
-						e.stopPropagation();
-						if ( slider.animating ) {
-							e.preventDefault();
-						} else {
-							el._gesture.addPointer( e.pointerId );
-							accDx = 0;
-							cwidth = slider.w;
-							startT = Number( new Date() );
-							offset = ( slider.animatingTo === slider.last ) ? 0 : ( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
+				function onTouchStart( e ) {
+					if ( slider.animating ) {
+						e.preventDefault();
+					} else if ( ( window.navigator.msPointerEnabled ) || e.touches.length === 1 ) {
+						cwidth = slider.w;
+						startT = Number( new Date() );
+
+						// Local vars for X and Y points.
+						localX = e.touches[0].pageX;
+						localY = e.touches[0].pageY;
+
+						offset = ( slider.animatingTo === slider.last ) ? 0 :
+								 ( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
+						startX = localX;
+						startY = localY;
+
+						el.addEventListener( 'touchmove', onTouchMove, false );
+						el.addEventListener( 'touchend', onTouchEnd, false );
+					}
+				}
+
+				function onTouchMove( e ) {
+					// Local vars for X and Y points.
+					localX = e.touches[0].pageX;
+					localY = e.touches[0].pageY;
+
+					dx = startX - localX;
+					scrolling = Math.abs( dx ) < Math.abs( localY - startY );
+
+					var fxms = 500;
+
+					if ( ! scrolling || Number( new Date() ) - startT > fxms ) {
+						e.preventDefault();
+						if ( slider.transitions ) {
+							slider.setProps( offset + dx, 'setTouch' );
 						}
 					}
+				}
 
-					function onMSGestureChange( e ) {
-						e.stopPropagation();
-						var slider = e.target._slider;
-						if ( ! slider ) {
-							return;
-						}
+				function onTouchEnd() {
+					// Finish the touch by undoing the touch session.
+					el.removeEventListener( 'touchmove', onTouchMove, false );
 
-						var transX = -e.translationX,
-							transY = -e.translationY;
+					if ( slider.animatingTo === slider.currentSlide && ! scrolling && dx !== null ) {
+						var updateDx = dx,
+							target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
 
-						// Accumulate translations.
-						accDx = accDx + transX;
-						dx = accDx;
-						scrolling = Math.abs( accDx ) < Math.abs( -transY );
-
-						if ( e.detail === e.MSGESTURE_FLAG_INERTIA ) {
-							setImmediate( function () {  // MSFT specific.
-								el._gesture.stop();
-							} );
-
-							return;
-						}
-
-						if ( ! scrolling || Number( new Date() ) - startT > 500 ) {
-							e.preventDefault();
-							if ( slider.transitions ) {
-								slider.setProps( offset + dx, 'setTouch' );
-							}
-						}
+						slider.featureAnimate( target );
 					}
+					el.removeEventListener( 'touchend', onTouchEnd, false );
 
-					function onMSGestureEnd( e ) {
-						e.stopPropagation();
-						var slider = e.target._slider;
-						if ( ! slider ) {
-							return;
-						}
+					startX = null;
+					startY = null;
+					dx = null;
+					offset = null;
+				}
 
-						if ( slider.animatingTo === slider.currentSlide && ! scrolling && dx !== null ) {
-							var updateDx = dx,
-							    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
-
-							slider.featureAnimate( target );
-						}
-
-						startX = null;
-						startY = null;
-						dx = null;
-						offset = null;
+				function onMSPointerDown( e ) {
+					e.stopPropagation();
+					if ( slider.animating ) {
+						e.preventDefault();
+					} else {
+						el._gesture.addPointer( e.pointerId );
 						accDx = 0;
+						cwidth = slider.w;
+						startT = Number( new Date() );
+						offset = ( slider.animatingTo === slider.last ) ? 0 : ( slider.currentSlide === slider.last ) ? slider.limit : ( slider.currentSlide + slider.cloneOffset ) * cwidth;
 					}
+				}
+
+				function onMSGestureChange( e ) {
+					e.stopPropagation();
+					var slider = e.target._slider;
+					if ( ! slider ) {
+						return;
+					}
+
+					var transX = -e.translationX,
+						transY = -e.translationY;
+
+					// Accumulate translations.
+					accDx = accDx + transX;
+					dx = accDx;
+					scrolling = Math.abs( accDx ) < Math.abs( -transY );
+
+					if ( e.detail === e.MSGESTURE_FLAG_INERTIA ) {
+						setImmediate( function () {  // MSFT specific.
+							el._gesture.stop();
+						} );
+
+						return;
+					}
+
+					if ( ! scrolling || Number( new Date() ) - startT > 500 ) {
+						e.preventDefault();
+						if ( slider.transitions ) {
+							slider.setProps( offset + dx, 'setTouch' );
+						}
+					}
+				}
+
+				function onMSGestureEnd( e ) {
+					e.stopPropagation();
+					var slider = e.target._slider;
+					if ( ! slider ) {
+						return;
+					}
+
+					if ( slider.animatingTo === slider.currentSlide && ! scrolling && dx !== null ) {
+						var updateDx = dx,
+						    target = ( updateDx > 0 ) ? slider.getTarget( 'next' ) : slider.getTarget( 'prev' );
+
+						slider.featureAnimate( target );
+					}
+
+					startX = null;
+					startY = null;
+					dx = null;
+					offset = null;
+					accDx = 0;
 				}
 			},
 
