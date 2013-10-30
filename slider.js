@@ -19,8 +19,7 @@
 			eventType = 'click touchend MSPointerUp',
 			watchedEvent = '',
 			watchedEventClearTimer,
-			methods = {},
-			focused = true;
+			methods = {};
 
 		// Store a reference to the slider object.
 		$.data( el, 'featuredslider', slider );
@@ -252,7 +251,7 @@
 						}
 					}
 
-					function onTouchEnd( e ) {
+					function onTouchEnd() {
 						// Finish the touch by undoing the touch session.
 						el.removeEventListener( 'touchmove', onTouchMove, false );
 
@@ -390,7 +389,7 @@
 				methods.directionNav.update();
 
 				var dimension = slider.computedW,
-					margin, slideString, calcNext;
+					slideString;
 
 				if ( slider.currentSlide === 0 && target === slider.count - 1 && slider.direction !== 'next' ) {
 					slideString = 0;
@@ -468,7 +467,7 @@
 		};
 
 		slider.setup = function( type ) {
-			var sliderOffset, arr;
+			var sliderOffset;
 
 			if ( type === 'init' ) {
 				slider.viewport = $( '<div class="' + namespace + 'viewport"></div>' ).css( { 'overflow': 'hidden', 'position': 'relative' } ).appendTo( slider ).append( slider.container );
@@ -539,13 +538,6 @@
 		// FeaturedSlider: initialize.
 		methods.init();
 	};
-
-	// Ensure the slider isn't focused if the window loses focus.
-	$( window ).blur( function ( e ) {
-		focused = false;
-	} ).focus( function ( e ) {
-		focused = true;
-	} );
 
 	// Default settings.
 	$.featuredslider.defaults = {
